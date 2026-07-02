@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nathaelle & Jeremy — 19 juin 2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ivory:#FAF6EC;
+    --ivory-deep:#F1EADA;
+    --ink:#2B2A25;
+    --ink-soft:#55534A;
+    --gold:#A8874F;
+    --gold-soft:#C9B183;
+    --wine:#6E2A35;
+    --sage:#707B5E;
+    --line: rgba(43,42,37,0.16);
+    --shadow: 0 20px 60px rgba(43,42,37,0.12);
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:var(--ivory);
+    color:var(--ink);
+    font-family:'EB Garamond', serif;
+    font-size:18px;
+    line-height:1.7;
+    overflow-x:hidden;
+  }
+
+  ::selection{ background:var(--gold-soft); color:var(--ink);}
+
+  h1,h2,h3, .display{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:500;
+    letter-spacing:0.01em;
+    color:var(--ink);
+  }
+
+  .eyebrow{
+    font-family:'Jost', sans-serif;
+    font-size:12.5px;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    color:var(--wine);
+    font-weight:500;
+  }
+
+  a{ color:inherit; text-decoration:none; }
+
+  .container{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 32px;
+  }
+
+  /* ---------- SVG defs (arch clip + ornaments) ---------- */
+  .defs{ position:absolute; width:0; height:0; overflow:hidden; }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 40px;
+    background:rgba(250,246,236,0);
+    transition:background .4s ease, box-shadow .4s ease, padding .4s ease;
+  }
+  nav.scrolled{
+    background:rgba(250,246,236,0.92);
+    backdrop-filter:blur(8px);
+    box-shadow:0 1px 0 var(--line);
+    padding:14px 40px;
+  }
+  .nav-mono{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:22px;
+    letter-spacing:0.02em;
+  }
+  .nav-links{ display:flex; gap:34px; }
+  .nav-links a{
+    font-family:'Jost', sans-serif;
+    font-size:12px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    position:relative;
+    padding-bottom:4px;
+  }
+  .nav-links a::after{
+    content:''; position:absolute; left:0; bottom:0; width:0; height:1px;
+    background:var(--wine); transition:width .3s ease;
+  }
+  .nav-links a:hover::after{ width:100%; }
+  .nav-toggle{ display:none; }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    padding:120px 24px 80px;
+    background:
+      radial-gradient(ellipse at 50% -10%, #FFFDF7 0%, var(--ivory) 55%),
+      var(--ivory);
+    overflow:hidden;
+  }
+  .hero::before{
+    content:'';
+    position:absolute; inset:0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(43,42,37,0.025) 0px, rgba(43,42,37,0.025) 1px, transparent 1px, transparent 3px);
+    pointer-events:none;
+  }
+  .hero-arch{
+    width:min(78vw, 560px);
+    aspect-ratio:2/2.7;
+    position:relative;
+    margin-bottom:8px;
+    display:flex; align-items:center; justify-content:center;
+    flex-direction:column;
+    border:1px solid var(--gold-soft);
+    clip-path:url(#archClip);
+    background:linear-gradient(180deg, #FFFEFA 0%, var(--ivory-deep) 100%);
+    padding:40px;
+  }
+  .hero-eyebrow{ margin-bottom:22px; opacity:0; animation:rise .9s ease .2s forwards; }
+  .hero-names{
+    font-size:clamp(46px, 9vw, 92px);
+    line-height:1;
+    font-style:italic;
+    font-weight:400;
+    display:flex; align-items:center; gap:0.25em; flex-wrap:wrap; justify-content:center;
+    opacity:0; animation:rise .9s ease .35s forwards;
+  }
+  .hero-amp{ color:var(--wine); font-size:0.6em; margin:0 0.05em; }
+  .hero-date{
+    margin-top:26px;
+    font-family:'Jost', sans-serif;
+    font-size:13px;
+    letter-spacing:0.24em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    opacity:0; animation:rise .9s ease .5s forwards;
+  }
+  .hero-place{
+    margin-top:6px;
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:17px;
+    color:var(--ink-soft);
+    opacity:0; animation:rise .9s ease .6s forwards;
+  }
+  @keyframes rise{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+
+  .scroll-cue{
+    position:absolute; bottom:36px; left:50%; transform:translateX(-50%);
+    font-family:'Jost', sans-serif; font-size:11px; letter-spacing:0.2em; text-transform:uppercase;
+    color:var(--ink-soft); display:flex; flex-direction:column; align-items:center; gap:10px;
+    opacity:0; animation:rise 1s ease .9s forwards;
+  }
+  .scroll-cue .line{ width:1px; height:38px; background:var(--gold-soft); animation:stretch 1.8s ease-in-out infinite; transform-origin:top; }
+  @keyframes stretch{ 0%,100%{ transform:scaleY(0.4); opacity:.4;} 50%{ transform:scaleY(1); opacity:1;} }
+
+  /* ---------- SECTION shell ---------- */
+  section{ padding:130px 0; position:relative; }
+  .section-head{ text-align:center; max-width:640px; margin:0 auto 64px; }
+  .section-head .eyebrow{ display:block; margin-bottom:16px; }
+  .section-head h2{ font-size:clamp(32px,4.2vw,48px); font-weight:400; }
+  .divider{
+    width:1px; height:52px; background:var(--gold-soft); margin:0 auto 28px;
+  }
+
+  .reveal{ opacity:0; transform:translateY(28px); transition:opacity .8s ease, transform .8s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ---------- NOTRE HISTOIRE ---------- */
+  .story{ background:var(--ivory-deep); }
+  .story-grid{
+    display:grid; grid-template-columns:0.85fr 1.15fr; gap:64px; align-items:center;
+  }
+  .story-frame{
+    aspect-ratio:3/4; clip-path:url(#archClip);
+    background:
+      linear-gradient(160deg, #E8DFC9 0%, #D8CBA9 45%, #C7B78C 100%);
+    position:relative; display:flex; align-items:center; justify-content:center;
+    box-shadow:var(--shadow);
+  }
+  .story-frame span{
+    font-family:'Jost', sans-serif; font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+    color:rgba(43,42,37,0.55); text-align:center; padding:0 30px;
+  }
+  .story-text p{ margin-bottom:20px; color:var(--ink-soft); }
+  .story-text p:first-of-type::first-letter{
+    font-family:'Cormorant Garamond', serif; font-size:64px; float:left; line-height:0.8;
+    padding:8px 10px 0 0; color:var(--wine); font-weight:500;
+  }
+  .signature-line{ margin-top:34px; font-family:'Cormorant Garamond', serif; font-style:italic; font-size:20px; color:var(--wine); }
+
+  /* ---------- PROGRAMME ---------- */
+  .timeline{ max-width:640px; margin:0 auto; position:relative; }
+  .timeline::before{
+    content:''; position:absolute; left:98px; top:6px; bottom:6px; width:1px; background:var(--line);
+  }
+  .t-item{ display:grid; grid-template-columns:80px 36px 1fr; gap:0; margin-bottom:52px; position:relative; }
+  .t-item:last-child{ margin-bottom:0; }
+  .t-time{ font-family:'Jost', sans-serif; font-size:13px; letter-spacing:0.08em; color:var(--wine); padding-top:4px; text-align:right; padding-right:18px;}
+  .t-dot-col{ display:flex; justify-content:center; }
+  .t-dot{
+    width:11px; height:11px; border-radius:50%; background:var(--ivory); border:1.5px solid var(--gold);
+    margin-top:6px; position:relative; z-index:2;
+  }
+  .t-body h3{ font-size:23px; font-weight:500; margin-bottom:6px; }
+  .t-body p{ color:var(--ink-soft); font-size:16.5px; }
+
+  /* ---------- LE LIEU ---------- */
+  .venue{ background:var(--ivory-deep); }
+  .venue-grid{ display:grid; grid-template-columns:1.15fr 0.85fr; gap:64px; align-items:center; }
+  .venue-text p{ color:var(--ink-soft); margin-bottom:18px; }
+  .venue-text .eyebrow{ margin-bottom:14px; display:block; }
+  .venue-text h2{ font-size:clamp(30px,3.6vw,40px); margin-bottom:22px; font-weight:400; }
+  .venue-frame{
+    aspect-ratio:3/4; clip-path:url(#archClip);
+    background:linear-gradient(160deg, #EFE7D3 0%, #DED0AE 100%);
+    box-shadow:var(--shadow);
+    display:flex; align-items:center; justify-content:center; text-align:center;
+  }
+  .venue-frame span{ font-family:'Jost', sans-serif; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:rgba(43,42,37,.55); padding:0 30px;}
+  .venue-note{
+    margin-top:22px; font-size:15px; color:var(--ink-soft); font-style:italic;
+    border-left:2px solid var(--gold-soft); padding-left:16px;
+  }
+  .venue-note a{ color:var(--wine); border-bottom:1px solid var(--gold-soft); }
+
+  /* ---------- GALERIE ---------- */
+  .gallery-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:26px;
+  }
+  .g-tile{
+    aspect-ratio:4/5; clip-path:url(#archClip);
+    background:linear-gradient(150deg, #EFE7D3, #D9CBA6);
+    display:flex; align-items:center; justify-content:center;
+    transition:transform .5s ease;
+  }
+  .g-tile:hover{ transform:translateY(-6px); }
+  .g-tile span{ font-family:'Jost', sans-serif; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:rgba(43,42,37,.5); text-align:center; padding:0 16px;}
+  .g-tile:nth-child(2n){ background:linear-gradient(150deg, #E7DFC7, #C9B78F); }
+  .g-tile:nth-child(3n){ background:linear-gradient(150deg, #F1EADA, #DED0AE); }
+
+  /* ---------- INFOS PRATIQUES ---------- */
+  .practical-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:36px; }
+  .p-card{
+    text-align:center; padding:40px 26px;
+    border:1px solid var(--line);
+    position:relative;
+  }
+  .p-card .glyph{
+    width:44px; height:44px; margin:0 auto 20px; color:var(--wine);
+  }
+  .p-card h3{ font-size:21px; margin-bottom:10px; font-weight:500; }
+  .p-card p{ color:var(--ink-soft); font-size:15.5px; }
+  .p-card a{ color:var(--wine); border-bottom:1px solid var(--gold-soft); }
+
+  /* ---------- RSVP ---------- */
+  .rsvp{ background:var(--ivory-deep); }
+  .rsvp-box{
+    max-width:600px; margin:0 auto;
+    background:var(--ivory);
+    border:1px solid var(--line);
+    padding:56px 48px;
+    box-shadow:var(--shadow);
+  }
+  .field{ margin-bottom:26px; }
+  .field label{
+    display:block; font-family:'Jost', sans-serif; font-size:11.5px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--ink-soft); margin-bottom:9px;
+  }
+  .field input, .field select, .field textarea{
+    width:100%; border:none; border-bottom:1px solid var(--line);
+    background:transparent; font-family:'EB Garamond', serif; font-size:17px; color:var(--ink);
+    padding:8px 2px; transition:border-color .3s ease;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{ outline:none; border-color:var(--wine); }
+  .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  .rsvp-choice{ display:flex; gap:14px; }
+  .rsvp-choice label{
+    flex:1; text-align:center; font-family:'Jost', sans-serif; font-size:12px; letter-spacing:0.12em; text-transform:uppercase;
+    border:1px solid var(--line); padding:12px 8px; cursor:pointer; transition:all .25s ease; color:var(--ink-soft);
+  }
+  .rsvp-choice input{ display:none; }
+  .rsvp-choice input:checked + label{ background:var(--wine); border-color:var(--wine); color:#fff; }
+  .rsvp-submit{
+    width:100%; padding:16px; margin-top:12px;
+    background:var(--wine); color:#FAF6EC; border:none;
+    font-family:'Jost', sans-serif; font-size:12.5px; letter-spacing:0.2em; text-transform:uppercase;
+    cursor:pointer; transition:background .3s ease;
+  }
+  .rsvp-submit:hover{ background:#5a2129; }
+  .rsvp-confirm{
+    display:none; text-align:center; padding:20px 0 0;
+    font-family:'Cormorant Garamond', serif; font-style:italic; font-size:20px; color:var(--wine);
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    text-align:center; padding:70px 24px 46px; background:var(--ivory);
+  }
+  .footer-mono{ font-family:'Cormorant Garamond', serif; font-style:italic; font-size:30px; margin-bottom:12px; }
+  footer p{ font-family:'Jost', sans-serif; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--ink-soft); }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:860px){
+    .nav-links{
+      position:fixed; top:0; right:0; height:100vh; width:min(78vw,320px);
+      background:var(--ivory); flex-direction:column; padding:100px 36px; gap:28px;
+      transform:translateX(100%); transition:transform .4s ease; box-shadow:-10px 0 40px rgba(0,0,0,.08);
+    }
+    .nav-links.open{ transform:translateX(0); }
+    .nav-toggle{
+      display:flex; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; z-index:110;
+    }
+    .nav-toggle span{ width:22px; height:1px; background:var(--ink); display:block; }
+
+    .story-grid, .venue-grid{ grid-template-columns:1fr; gap:40px; }
+    .story-frame, .venue-frame{ max-width:340px; margin:0 auto; }
+    .gallery-grid{ grid-template-columns:repeat(2,1fr); }
+    .practical-grid{ grid-template-columns:1fr; }
+    .field-row{ grid-template-columns:1fr; }
+    .timeline::before{ left:14px; }
+    .t-item{ grid-template-columns:28px 1fr; }
+    .t-time{ display:none; }
+    section{ padding:90px 0; }
+    .rsvp-box{ padding:40px 26px; }
+  }
+</style>
+</head>
+<body>
+
+<svg class="defs" aria-hidden="true">
+  <clipPath id="archClip" clipPathUnits="objectBoundingBox">
+    <path d="M0,1 L0,0.42 Q0,0.06 0.5,0 Q1,0.06 1,0.42 L1,1 Z"/>
+  </clipPath>
+</svg>
+
+<nav id="nav">
+  <div class="nav-mono">N &amp; J</div>
+  <div class="nav-links" id="navLinks">
+    <a href="#histoire" class="nav-close-link">Notre histoire</a>
+    <a href="#programme" class="nav-close-link">Programme</a>
+    <a href="#lieu" class="nav-close-link">Le lieu</a>
+    <a href="#galerie" class="nav-close-link">Galerie</a>
+    <a href="#rsvp" class="nav-close-link">RSVP</a>
+  </div>
+  <button class="nav-toggle" id="navToggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="hero-arch">
+    <div class="hero-eyebrow eyebrow">Nous nous marions</div>
+    <div class="hero-names"><span>Nathaelle</span><span class="hero-amp">&amp;</span><span>Jeremy</span></div>
+    <div class="hero-date">Samedi 19 juin 2027</div>
+    <div class="hero-place">Château des Anges, Saint-Just-de-Claix</div>
+  </div>
+  <div class="scroll-cue"><span>Découvrir</span><span class="line"></span></div>
+</header>
+
+<!-- ================= NOTRE HISTOIRE ================= -->
+<section id="histoire" class="story">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Depuis le début</span>
+      <h2>Notre histoire</h2>
+    </div>
+    <div class="story-grid reveal">
+      <div class="story-frame"><span>Remplacez ce cadre<br>par votre photo préférée</span></div>
+      <div class="story-text">
+        <p>Remplacez ce paragraphe par le début de votre histoire : où et quand vous vous êtes rencontrés, et ce qui a suivi. Un souvenir précis — un lieu, une phrase, une chanson — donne toujours plus de vie au texte qu'un résumé général.</p>
+        <p>Continuez ici avec un second souvenir : une étape marquante, un voyage, le jour de la demande. Vos invités aiment lire ces détails, alors n'hésitez pas à être précis et sincères.</p>
+        <div class="signature-line">Nathaelle &amp; Jeremy</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROGRAMME ================= -->
+<section id="programme">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">19 juin 2027</span>
+      <h2>Programme du jour</h2>
+    </div>
+    <div class="timeline reveal">
+      <div class="t-item">
+        <div class="t-time">15h00</div>
+        <div class="t-dot-col"><div class="t-dot"></div></div>
+        <div class="t-body"><h3>Cérémonie</h3><p>Dans la cour intérieure du château, sous les tilleuls centenaires.</p></div>
+      </div>
+      <div class="t-item">
+        <div class="t-time">16h00</div>
+        <div class="t-dot-col"><div class="t-dot"></div></div>
+        <div class="t-body"><h3>Cocktail</h3><p>Un moment convivial dans le parc, autour de quelques bulles.</p></div>
+      </div>
+      <div class="t-item">
+        <div class="t-time">19h30</div>
+        <div class="t-dot-col"><div class="t-dot"></div></div>
+        <div class="t-body"><h3>Dîner</h3><p>Repas assis dans la grande salle de réception du château.</p></div>
+      </div>
+      <div class="t-item">
+        <div class="t-time">22h30</div>
+        <div class="t-dot-col"><div class="t-dot"></div></div>
+        <div class="t-body"><h3>Soirée dansante</h3><p>Musique et danse jusqu'au bout de la nuit.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LE LIEU ================= -->
+<section id="lieu" class="venue">
+  <div class="container">
+    <div class="venue-grid">
+      <div class="venue-text reveal">
+        <span class="eyebrow">Le lieu</span>
+        <h2>Château des Anges</h2>
+        <p>Ancienne abbaye cistercienne du XIVᵉ siècle, le Château des Anges domine les paysages de l'Isère et de la Drôme, aux portes du parc naturel régional du Vercors.</p>
+        <p>Sa cour intérieure ombragée de tilleuls centenaires, son parc de sept hectares et ses salles de pierre en font un cadre chargé d'histoire pour notre journée.</p>
+        <div class="venue-note">
+          300 Montée Béatrix de Hongrie, 38680 Saint-Just-de-Claix — <a href="https://www.google.com/maps/search/?api=1&query=Ch%C3%A2teau+des+Anges+Saint-Just-de-Claix" target="_blank" rel="noopener">voir sur la carte</a>
+        </div>
+      </div>
+      <div class="venue-frame reveal"><span>Ajoutez ici une photo du château<br>(la vôtre ou avec l'accord du domaine)</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= GALERIE ================= -->
+<section id="galerie">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Souvenirs</span>
+      <h2>Galerie</h2>
+    </div>
+    <div class="gallery-grid reveal">
+      <div class="g-tile"><span>Photo 1</span></div>
+      <div class="g-tile"><span>Photo 2</span></div>
+      <div class="g-tile"><span>Photo 3</span></div>
+      <div class="g-tile"><span>Photo 4</span></div>
+      <div class="g-tile"><span>Photo 5</span></div>
+      <div class="g-tile"><span>Photo 6</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= INFOS PRATIQUES ================= -->
+<section id="infos" class="venue">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">À prévoir</span>
+      <h2>Infos pratiques</h2>
+    </div>
+    <div class="practical-grid reveal">
+      <div class="p-card">
+        <h3>Adresse</h3>
+        <p>Château des Anges<br>300 Montée Béatrix de Hongrie<br>38680 Saint-Just-de-Claix</p>
+      </div>
+      <div class="p-card">
+        <h3>Stationnement</h3>
+        <p>Deux parkings privés sont disponibles directement sur le domaine.</p>
+      </div>
+      <div class="p-card">
+        <h3>Hébergement</h3>
+        <p>Des chambres sont disponibles sur place pour la nuit du 19 au 20 juin — contactez-nous pour réserver.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RSVP ================= -->
+<section id="rsvp" class="rsvp">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Avant le 1er mai 2027</span>
+      <h2>Confirmez votre présence</h2>
+    </div>
+    <form class="rsvp-box reveal" id="rsvpForm">
+      <div class="field-row">
+        <div class="field">
+          <label for="prenom">Prénom</label>
+          <input type="text" id="prenom" required>
+        </div>
+        <div class="field">
+          <label for="nom">Nom</label>
+          <input type="text" id="nom" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Serez-vous présent(e) ?</label>
+        <div class="rsvp-choice">
+          <input type="radio" name="presence" id="oui" value="oui" checked>
+          <label for="oui">Avec joie</label>
+          <input type="radio" name="presence" id="non" value="non">
+          <label for="non">Absent(e)</label>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="nb">Nombre de personnes</label>
+          <input type="number" id="nb" min="1" value="1">
+        </div>
+        <div class="field">
+          <label for="regime">Régime alimentaire</label>
+          <select id="regime">
+            <option>Aucune restriction</option>
+            <option>Végétarien</option>
+            <option>Végétalien</option>
+            <option>Sans gluten</option>
+            <option>Autre (précisez ci-dessous)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="message">Un mot pour les mariés</label>
+        <textarea id="message" rows="3"></textarea>
+      </div>
+
+      <button type="submit" class="rsvp-submit">Envoyer ma réponse</button>
+      <div class="rsvp-confirm" id="rsvpConfirm">Merci ! Votre réponse a bien été prise en compte.</div>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-mono">N &amp; J</div>
+  <p>19 · 06 · 2027 — Château des Anges</p>
+</footer>
+
+<script>
+  // Nav scroll state
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // Mobile nav toggle
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+  document.querySelectorAll('.nav-close-link').forEach(l => l.addEventListener('click', () => navLinks.classList.remove('open')));
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // RSVP form (front-end only demo — see note in chat about connecting a real backend)
+  const form = document.getElementById('rsvpForm');
+  const confirm = document.getElementById('rsvpConfirm');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    confirm.style.display = 'block';
+    form.querySelector('.rsvp-submit').style.display = 'none';
+  });
+</script>
+
+</body>
+</html>
