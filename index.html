@@ -319,7 +319,10 @@
   }
 
   /* ---------- INFOS PRATIQUES ---------- */
-  .practical-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:36px; }
+  .practical-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:36px; }
+  @media (max-width:1100px) and (min-width:861px){
+    .practical-grid{ grid-template-columns:repeat(2, 1fr); }
+  }
   .p-card{
     text-align:center; padding:40px 26px;
     border:1px solid var(--line);
@@ -662,36 +665,39 @@
       <span class="eyebrow">Avant le 1er avril 2027</span>
       <h2>Confirmez votre présence</h2>
     </div>
-    <form class="rsvp-box reveal" id="rsvpForm">
+    <form class="rsvp-box reveal" id="rsvpForm" action="https://formsubmit.co/nathaelle.jeremy@gmail.com" method="POST">
+      <input type="hidden" name="_subject" value="Nouvelle réponse RSVP — Mariage Nathaelle &amp; Jérémy">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_captcha" value="false">
       <div class="field-row">
         <div class="field">
           <label for="prenom">Prénom</label>
-          <input type="text" id="prenom" required>
+          <input type="text" id="prenom" name="Prénom" required>
         </div>
         <div class="field">
           <label for="nom">Nom</label>
-          <input type="text" id="nom" required>
+          <input type="text" id="nom" name="Nom" required>
         </div>
       </div>
 
       <div class="field">
         <label>Serez-vous présent(e) ?</label>
         <div class="rsvp-choice">
-          <input type="radio" name="presence" id="oui" value="oui" checked>
+          <input type="radio" name="Présence" id="oui" value="Avec joie" checked>
           <label for="oui">Avec joie</label>
-          <input type="radio" name="presence" id="non" value="non">
+          <input type="radio" name="Présence" id="non" value="Absent(e)">
           <label for="non">Absent(e)</label>
         </div>
       </div>
 
       <div class="field">
         <label for="nb">Nombre de personnes</label>
-        <input type="number" id="nb" min="1" value="1">
+        <input type="number" id="nb" name="Nombre de personnes" min="1" value="1">
       </div>
 
       <div class="field">
         <label for="message">Un mot pour les mariés</label>
-        <textarea id="message" rows="3"></textarea>
+        <textarea id="message" name="Message" rows="3"></textarea>
       </div>
 
       <button type="submit" class="rsvp-submit">Envoyer ma réponse</button>
@@ -710,16 +716,16 @@
     <p class="dresscode-intro reveal">Pour celles et ceux qui souhaitent prolonger la fête sans se soucier du retour, un hébergement est proposé sur place ; le lendemain, rendez-vous à 11h00 pour le brunch, avec accès à la piscine et à la pétanque. Alors, serez-vous de la partie ?</p>
     <div class="brunch-grid reveal">
       <div class="brunch-box">
-        <span class="dc-eyebrow">Brunch</span>
+        <span class="dc-eyebrow">Nuit &amp; Brunch</span>
         <div class="brunch-price">20 &euro; <span>Par personne</span></div>
-        <p class="brunch-text">Repas et accès piscine &amp; pétanque inclus.</p>
-        <a href="https://mariage-nathaelle-et-jeremy.sumupstore.com" target="_blank" rel="noopener" class="brunch-btn">Réserver le brunch</a>
+        <p class="brunch-text">Hébergement, repas et accès piscine &amp; pétanque inclus.</p>
+        <a href="https://mariage-nathaelle-et-jeremy.sumupstore.com" target="_blank" rel="noopener" class="brunch-btn">Réserver nuit &amp; brunch</a>
       </div>
       <div class="brunch-box">
-        <span class="dc-eyebrow">Nuit seule</span>
-        <div class="brunch-price">Gratuit</div>
+        <span class="dc-eyebrow">Nuit</span>
+        <div class="brunch-price">10 &euro; <span>Par personne</span></div>
         <p class="brunch-text">Vous restez dormir sur place mais ne participez pas au brunch.</p>
-        <a href="#" class="brunch-btn brunch-btn-outline">Je reste dormir</a>
+        <a href="https://mariage-nathaelle-et-jeremy.sumupstore.com/article/nuit" target="_blank" rel="noopener" class="brunch-btn brunch-btn-outline">Réserver la nuit</a>
       </div>
     </div>
   </div>
@@ -750,13 +756,28 @@
   }, { threshold: 0.15 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-  // RSVP form (front-end only demo — see note in chat about connecting a real backend)
+  // RSVP form — submits to FormSubmit (nathaelle.jeremy@gmail.com) without leaving the page
   const form = document.getElementById('rsvpForm');
   const confirm = document.getElementById('rsvpConfirm');
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    confirm.style.display = 'block';
-    form.querySelector('.rsvp-submit').style.display = 'none';
+    const submitBtn = form.querySelector('.rsvp-submit');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Envoi en cours…';
+
+    fetch('https://formsubmit.co/ajax/nathaelle.jeremy@gmail.com', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+      body: new FormData(form)
+    })
+      .then(() => {
+        confirm.style.display = 'block';
+        submitBtn.style.display = 'none';
+      })
+      .catch(() => {
+        // fallback: if the AJAX call fails (e.g. network hiccup), submit the form normally
+        form.submit();
+      });
   });
 </script>
 
