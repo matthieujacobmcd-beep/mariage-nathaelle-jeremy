@@ -621,7 +621,7 @@
       </div>
       <div class="p-card">
         <h3>Hébergement</h3>
-        <p>Des chambres sont disponibles sur place pour la nuit du 19 au 20 juin — contactez-nous pour réserver.</p>
+        <p>Des chambres sont disponibles sur place pour la nuit du 19 au 20 juin.</p>
       </div>
       <div class="p-card">
         <h3>Enfants</h3>
@@ -647,7 +647,7 @@
       <div class="dc-card">
         <span class="dc-eyebrow">Messieurs</span>
         <h3>Costume</h3>
-        <p>Vous vous en doutiez, le costume est obligatoire.<br>Pas de blanc ni d'ivoire.</p>
+        <p>Vous vous en doutiez, le costume est obligatoire.</p>
       </div>
       <div class="dc-card">
         <span class="dc-eyebrow">Mesdames</span>
@@ -692,8 +692,10 @@
 
       <div class="field">
         <label for="nb">Nombre de personnes</label>
-        <input type="number" id="nb" name="Nombre de personnes" min="1" value="1">
+        <input type="number" id="nb" name="Nombre de personnes" min="1" max="10" value="1">
       </div>
+
+      <div id="extraGuests"></div>
 
       <div class="field">
         <label for="message">Un mot pour les mariés</label>
@@ -759,6 +761,31 @@
   // RSVP form — submits to FormSubmit (nathaelle.jeremy@gmail.com) without leaving the page
   const form = document.getElementById('rsvpForm');
   const confirm = document.getElementById('rsvpConfirm');
+
+  // Dynamically add name fields for additional guests
+  const nbInput = document.getElementById('nb');
+  const extraGuestsContainer = document.getElementById('extraGuests');
+
+  function updateExtraGuestFields() {
+    let count = parseInt(nbInput.value, 10);
+    if (isNaN(count) || count < 1) count = 1;
+    if (count > 10) count = 10;
+
+    extraGuestsContainer.innerHTML = '';
+    for (let i = 2; i <= count; i++) {
+      const field = document.createElement('div');
+      field.className = 'field';
+      field.innerHTML = `
+        <label for="invite${i}">Nom et prénom — invité(e) ${i}</label>
+        <input type="text" id="invite${i}" name="Invité ${i}">
+      `;
+      extraGuestsContainer.appendChild(field);
+    }
+  }
+
+  nbInput.addEventListener('input', updateExtraGuestFields);
+  updateExtraGuestFields();
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const submitBtn = form.querySelector('.rsvp-submit');
