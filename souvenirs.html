@@ -55,6 +55,12 @@ h1{font-family:"Pinyon Script",cursive;font-weight:400;color:var(--rose);font-si
 .tile .adm-del[data-armed],.lb .danger[data-armed]{background:#b3403d;color:#fff;border-color:#b3403d}
 .lb .danger{border-color:#e7a7a4!important;color:#ffd9d6!important}
 @keyframes pop{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+@media(max-width:639px){
+  .bar{flex-direction:column;align-items:center;gap:2px;text-align:center}
+  .grid{column-count:auto;display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+  .tile{margin:0;width:calc(50% - 5px);aspect-ratio:4/5}
+  .tile img{width:100%;height:100%;object-fit:cover}
+}
 .empty{text-align:center;color:var(--muted);font-style:italic;padding:40px 0}
 footer{text-align:center;padding:36px 0 44px;color:var(--muted)}
 footer .mono{font-size:30px}
@@ -111,7 +117,6 @@ input[type=file]{display:none}
     <h1>Nos souvenirs</h1>
     <div class="date">19 juin 2027 · Château des Anges</div>
     <p class="intro">Prenez des photos et partagez-les avec tous les invités : elles apparaissent ici, tout de suite. Sans compte, sans rien à télécharger.</p>
-    <p class="rule">Les téléphones restent rangés pendant la cérémonie et la sortie des mariés, puis ils sont les bienvenus dès le vin d'honneur.</p>
   </header>
 
   <div id="admin" class="admin-bar">
