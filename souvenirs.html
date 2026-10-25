@@ -80,6 +80,17 @@ footer small{display:block;font-family:Jost,sans-serif;letter-spacing:.2em;font-
 .lb img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px}
 .lb .row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;padding:12px 16px calc(14px + env(safe-area-inset-bottom))}
 .lb .row button{background:none;border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:999px;font-family:Jost,sans-serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:11px 16px;cursor:pointer}
+.adminlink{display:inline-block;margin-top:18px;font-family:Jost,sans-serif;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);opacity:.55;text-decoration:none;border-bottom:1px solid transparent}
+.adminlink:hover{opacity:1;border-bottom-color:var(--rose)}
+.modal{position:fixed;inset:0;z-index:80;background:rgba(43,42,37,.55);display:none;align-items:center;justify-content:center;padding:16px}
+.modal.on{display:flex}
+.modal .box{background:var(--bg);border-radius:20px;padding:26px 22px 22px;max-width:340px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal h3{font-family:"Pinyon Script",cursive;font-weight:400;color:var(--rose);font-size:34px;margin:4px 0 6px}
+.modal p{margin:0 0 14px;font-size:16px;color:var(--muted)}
+.modal input{width:100%;font:inherit;font-size:18px;padding:13px 16px;border:1px solid var(--line);border-radius:999px;background:#fff;text-align:center;color:var(--ink)}
+.modal input:focus{outline:2px solid var(--rose);outline-offset:1px}
+.modal .err{min-height:22px;margin:8px 0 2px;font-family:Jost,sans-serif;font-size:13px;color:#b3403d}
+.modal .btns{display:flex;gap:10px;justify-content:center;margin-top:6px}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--ink);color:#fff;font-family:Jost,sans-serif;font-size:13px;padding:11px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:90;max-width:90vw;text-align:center}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .demo-flag{background:#fff3cd;color:#6b5400;text-align:center;font-family:Jost,sans-serif;font-size:12px;padding:6px}
@@ -102,6 +113,7 @@ input[type=file]{display:none}
     <div class="lbl">Espace mariés</div>
     <button class="btn small ghost" id="adToggle">…</button>
     <button class="btn small ghost" id="adZip">Tout télécharger (zip)</button>
+    <button class="btn small ghost" id="adOut">Se déconnecter</button>
   </div>
 
   <div id="closed" class="closed" hidden>L'envoi de nouvelles photos est maintenant clos. La galerie reste ouverte : merci d'avoir partagé ces moments avec nous.</div>
@@ -118,7 +130,7 @@ input[type=file]{display:none}
   <div id="grid" class="grid"></div>
   <div id="empty" class="empty" hidden>Aucune photo pour l'instant. Soyez les premiers !</div>
 
-  <footer><div class="mono">N &amp; J</div><small>19 · 06 · 2027</small></footer>
+  <footer><div class="mono">N &amp; J</div><small>19 · 06 · 2027</small><a href="#" id="adminLink" class="adminlink">Espace mariés</a></footer>
 </div>
 
 <div id="cam" class="cam" role="dialog" aria-label="Appareil photo">
@@ -142,6 +154,16 @@ input[type=file]{display:none}
     <button id="lbClose">Fermer</button>
     <button id="lbNext" aria-label="Suivante">›</button>
   </div>
+</div>
+<div id="login" class="modal" role="dialog" aria-label="Espace mariés">
+  <form id="loginForm" class="box" autocomplete="off">
+    <div class="mono">N &amp; J</div>
+    <h3>Espace mariés</h3>
+    <p>Réservé à Nathaelle &amp; Jérémy pour masquer ou supprimer des photos.</p>
+    <input id="loginCode" type="password" placeholder="Code" autocomplete="current-password" aria-label="Code des mariés">
+    <div id="loginErr" class="err" aria-live="polite"></div>
+    <div class="btns"><button type="button" class="btn small ghost" id="loginCancel">Annuler</button><button type="submit" class="btn small primary" id="loginGo">Se connecter</button></div>
+  </form>
 </div>
 <div id="toast" class="toast"></div>
 
@@ -410,22 +432,45 @@ function afterDelete(){
 }
 $('lbDel').onclick = () => { const p = list()[lbIdx]; if (p) armDelete($('lbDel'), p.id); };
 function paintToggle(){ $('adToggle').textContent = uploadOpen ? "Fermer l'envoi de photos" : "Rouvrir l'envoi de photos"; }
+/* ----- connexion à l'espace des mariés (champ sur la page, sans fenêtre contextuelle) ----- */
+function enterAdmin(code){
+  adminCode = code; $('admin').classList.add('on'); $('adminLink').hidden = true; paintToggle(); refresh();
+}
+function leaveAdmin(){
+  adminCode = null; try { sessionStorage.removeItem('nj_admin'); } catch(e){}
+  $('admin').classList.remove('on'); $('adminLink').hidden = false; closeLb();
+  document.querySelectorAll('.adm, .adm-del').forEach(e => e.remove());
+  photos = photos.filter(p => !p.hidden); render(); refresh(); toast('Déconnecté');
+}
+async function checkCode(code){
+  if (DEMO) return !!code;
+  try { await rest('rpc/admin_list', { method:'POST', body: JSON.stringify({ code }) }); return true; } catch(e){ return false; }
+}
+function openLogin(){ $('loginErr').textContent = ''; $('loginCode').value = ''; $('login').classList.add('on'); setTimeout(() => $('loginCode').focus(), 50); }
+function closeLogin(){ $('login').classList.remove('on'); }
 async function initAdmin(){
-  if (!params.has('admin')) return;
-  if (DEMO){ adminCode = 'demo'; }
-  else {
-    adminCode = sessionStorage.getItem('nj_admin') || prompt('Code des mariés');
-    if (!adminCode) return;
-    try { await rest('rpc/admin_list', { method:'POST', body: JSON.stringify({ code: adminCode }) }); sessionStorage.setItem('nj_admin', adminCode); }
-    catch(e){ sessionStorage.removeItem('nj_admin'); adminCode = null; toast('Code incorrect.'); return; }
-  }
-  $('admin').classList.add('on'); paintToggle();
+  $('adminLink').onclick = e => { e.preventDefault(); openLogin(); };
+  $('loginCancel').onclick = closeLogin;
+  $('login').addEventListener('click', e => { if (e.target.id === 'login') closeLogin(); });
+  $('loginForm').onsubmit = async e => {
+    e.preventDefault(); const code = $('loginCode').value.trim(); if (!code) return;
+    const b = $('loginGo'); b.disabled = true; $('loginErr').textContent = '';
+    const ok = await checkCode(code); b.disabled = false;
+    if (!ok){ $('loginErr').textContent = 'Code incorrect.'; return; }
+    try { sessionStorage.setItem('nj_admin', code); } catch(e){}
+    closeLogin(); enterAdmin(code); toast('Espace mariés ouvert');
+  };
+  $('adOut').onclick = leaveAdmin;
   $('adToggle').onclick = async () => {
     const next = !uploadOpen;
     if (!DEMO) { try { await rest('rpc/admin_set_open', { method:'POST', body: JSON.stringify({ code: adminCode, open: next }) }); } catch(e){ return toast('Action impossible.'); } }
     uploadOpen = next; paintToggle(); applyOpen(); toast(next ? 'Envoi rouvert' : 'Envoi fermé (la galerie reste visible)');
   };
   $('adZip').onclick = zipAll;
+  // session déjà ouverte dans cet onglet ?
+  let saved = null; try { saved = sessionStorage.getItem('nj_admin'); } catch(e){}
+  if (saved && await checkCode(saved)) { enterAdmin(saved); return; }
+  if (params.has('admin')) openLogin();
 }
 async function zipAll(){
   const btn = $('adZip'); btn.disabled = true; const old = btn.textContent;
