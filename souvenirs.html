@@ -397,13 +397,16 @@ async function startStream(){
   setZoom(1);
 }
 function setZoom(z){
-  const max = hwZoom ? Math.min(hwZoom.max, 8) : 5;
+  $('zoombar').hidden = !hwZoom;
+  if (!hwZoom){ $('video').style.transform = facing === 'user' ? 'scaleX(-1)' : 'none'; zoom = 1; return; }
+  const max = Math.min(hwZoom.max, 8);
+  document.querySelectorAll('#zoombar button').forEach(b => b.hidden = +b.dataset.z > max);
   zoom = Math.max(1, Math.min(max, z));
   const v = $('video'), mir = facing === 'user' ? 'scaleX(-1) ' : '';
   if (hwZoom && stream){
     v.style.transform = mir.trim() || 'none';
     stream.getVideoTracks()[0].applyConstraints({ advanced:[{ zoom: Math.max(hwZoom.min, zoom) }] }).catch(()=>{});
-  } else v.style.transform = mir + 'scale(' + zoom + ')';
+  }
   document.querySelectorAll('#zoombar button').forEach(b => b.classList.toggle('on', Math.abs(+b.dataset.z - zoom) < 0.25));
 }
 function stopStream(){ if (stream){ stream.getTracks().forEach(t => t.stop()); stream = null; } }
@@ -419,10 +422,10 @@ document.querySelectorAll('#zoombar button').forEach(b => b.onclick = () => setZ
 (function(){ // pincer pour zoomer
   const w = $('vwrap'); let d0 = 0, z0 = 1;
   const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
-  w.addEventListener('touchstart', e => { if (e.touches.length === 2){ d0 = dist(e.touches); z0 = zoom; } }, {passive:true});
+  w.addEventListener('touchstart', e => { if (hwZoom && e.touches.length === 2){ d0 = dist(e.touches); z0 = zoom; } }, {passive:true});
   w.addEventListener('touchmove', e => { if (e.touches.length === 2 && d0){ e.preventDefault(); setZoom(z0 * dist(e.touches) / d0); } }, {passive:false});
   w.addEventListener('touchend', e => { if (e.touches.length < 2) d0 = 0; }, {passive:true});
-  w.addEventListener('wheel', e => { e.preventDefault(); setZoom(zoom * (e.deltaY < 0 ? 1.1 : 0.9)); }, {passive:false});
+  w.addEventListener('wheel', e => { if (!hwZoom) return; e.preventDefault(); setZoom(zoom * (e.deltaY < 0 ? 1.1 : 0.9)); }, {passive:false});
 })();
 $('camFlip').onclick = async () => { facing = facing === 'user' ? 'environment' : 'user'; try { await startStream(); } catch(e){ toast('Impossible de changer de caméra.'); } };
 $('shutter').onclick = async () => {
@@ -430,7 +433,7 @@ $('shutter').onclick = async () => {
   const f = $('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');
   if (navigator.vibrate) navigator.vibrate(15);
   // on fige l'image tout de suite, le traitement se fait ensuite
-  const dz = hwZoom ? 1 : zoom, sw = v.videoWidth / dz, sh = v.videoHeight / dz;
+  const sw = v.videoWidth, sh = v.videoHeight;
   const c = document.createElement('canvas'); c.width = Math.round(sw); c.height = Math.round(sh); c.getContext('2d').drawImage(v, (v.videoWidth - sw) / 2, (v.videoHeight - sh) / 2, sw, sh, 0, 0, c.width, c.height);
   enqueue(c);
 };
