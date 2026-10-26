@@ -170,7 +170,7 @@ input[type=file]{display:none}
 
 <div id="cam" class="cam" role="dialog" aria-label="Appareil photo">
   <div class="tally" id="tally"></div>
-  <div class="vwrap" id="vwrap"><video id="video" playsinline muted autoplay></video><img class="still" id="still" alt=""><div class="thumb" id="thumb"><img id="thumbImg" alt=""><span class="n" id="thumbN">1</span></div><div class="ok" id="ok"><span>✓ Photo enregistrée</span></div><div class="zoombar" id="zoombar"><button data-z="1" class="on">1×</button><button data-z="2">2×</button><button data-z="3">3×</button></div></div>
+  <div class="vwrap" id="vwrap"><video id="video" playsinline muted autoplay></video><img class="still" id="still" alt=""><div class="thumb" id="thumb"><img id="thumbImg" alt=""><span class="n" id="thumbN">1</span></div><div class="ok" id="ok"><span>✓ Photo enregistrée</span></div><div class="zoombar" id="zoombar"><button data-z="0.5" hidden>0,5×</button><button data-z="1" class="on">1×</button><button data-z="2">2×</button><button data-z="3">3×</button></div></div>
   <button class="xbtn" id="camX" aria-label="Fermer">✕</button>
   <div class="flash" id="flash"></div>
   <div class="screenflash" id="sflash"></div>
@@ -407,20 +407,35 @@ $('lbHide').onclick = () => { const p = list()[lbIdx]; if (p) hidePhoto(p.id, !p
 
 /* ---------- appareil photo intégré ---------- */
 let stream = null, facing = 'environment', zoom = 1, hwZoom = null, hwTorch = false, flashOn = false;
-async function startStream(){
+let ultraId = null, ultra = false;
+async function startStream(deviceId){
   stopStream();
-  stream = await navigator.mediaDevices.getUserMedia({ audio:false, video:{ facingMode:{ ideal: facing }, width:{ ideal:1920 }, height:{ ideal:1440 } } });
+  const size = { width:{ ideal:1920 }, height:{ ideal:1440 } };
+  stream = await navigator.mediaDevices.getUserMedia({ audio:false, video: deviceId ? { deviceId:{ exact: deviceId }, ...size } : { facingMode:{ ideal: facing }, ...size } });
+  ultra = !!deviceId;
   const v = $('video'); v.srcObject = stream; await v.play().catch(()=>{});
   hwZoom = null; hwTorch = false;
   try { const tr = stream.getVideoTracks()[0], cap = tr.getCapabilities ? tr.getCapabilities() : {}; if (cap.zoom && cap.zoom.max > 1) hwZoom = { min: cap.zoom.min || 1, max: cap.zoom.max }; if (cap.torch) hwTorch = true; } catch(e){}
-  setZoom(1);
+  if (!deviceId){
+    ultraId = null;
+    try { if (facing !== 'user'){ const ds = await navigator.mediaDevices.enumerateDevices(); const d = ds.find(x => x.kind === 'videoinput' && /ultra|grand[- ]angle|0[.,]5/i.test(x.label) && !/front|avant|user/i.test(x.label)); if (d) ultraId = d.deviceId; } } catch(e){}
+  }
+  return setZoom(deviceId ? 0.5 : 1);
 }
-function setZoom(z){
+function wideAvailable(){ return facing !== 'user' && (ultra || ultraId || (hwZoom && hwZoom.min < 0.75)); }
+async function setZoom(z){
+  if (z < 0.75 && !ultra && !(hwZoom && hwZoom.min < 0.75) && ultraId && facing !== 'user'){
+    try { await startStream(ultraId); } catch(e){ toast('Grand angle indisponible.'); try { await startStream(); } catch(e2){} }
+    return;
+  }
+  if (z >= 0.75 && ultra){ await startStream(); if (z > 1.05) return setZoom(z); return; }
   const max = hwZoom ? Math.min(hwZoom.max, 8) : 3;
-  document.querySelectorAll('#zoombar button').forEach(b => b.hidden = +b.dataset.z > max);
-  zoom = Math.max(1, Math.min(max, z));
+  const minZ = ultra ? 0.5 : (hwZoom && hwZoom.min < 0.75 ? hwZoom.min : 1);
+  document.querySelectorAll('#zoombar button').forEach(b => { const q = +b.dataset.z; b.hidden = q < 1 ? !wideAvailable() : q > max; });
+  zoom = ultra ? 0.5 : Math.max(minZ, Math.min(max, z));
   const v = $('video'), mir = facing === 'user' ? 'scaleX(-1) ' : '';
-  if (hwZoom && stream){
+  if (ultra){ v.style.transform = mir.trim() || 'none'; }
+  else if (hwZoom && stream){
     v.style.transform = mir.trim() || 'none';
     stream.getVideoTracks()[0].applyConstraints({ advanced:[{ zoom: Math.max(hwZoom.min, zoom) }] }).catch(()=>{});
   } else v.style.transform = mir + 'scale(' + zoom + ')';
@@ -467,7 +482,7 @@ $('shutter').onclick = async () => {
     if (useTorch){ await torch(true); await new Promise(r => setTimeout(r, 350)); }
     if (useScreen){ $('sflash').style.opacity = 1; await new Promise(r => setTimeout(r, 300)); }
     // on fige l'image tout de suite, le traitement se fait ensuite
-    const dz = hwZoom ? 1 : zoom, sw = v.videoWidth / dz, sh = v.videoHeight / dz;
+    const dz = (hwZoom || ultra) ? 1 : zoom, sw = v.videoWidth / dz, sh = v.videoHeight / dz;
     const c = document.createElement('canvas'); c.width = Math.round(sw); c.height = Math.round(sh); c.getContext('2d').drawImage(v, (v.videoWidth - sw) / 2, (v.videoHeight - sh) / 2, sw, sh, 0, 0, c.width, c.height);
     const f = $('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');
     if (navigator.vibrate) navigator.vibrate(15);
