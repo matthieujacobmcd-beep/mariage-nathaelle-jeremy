@@ -31,7 +31,7 @@ h1{font-family:"Pinyon Script",cursive;font-weight:400;color:var(--black);font-s
 .intro{max-width:34em;margin:14px auto 0;color:var(--muted)}
 .rule{max-width:34em;margin:10px auto 0;font-style:italic;font-size:16px;color:var(--muted);opacity:.9}
 .actions{display:flex;flex-direction:column;gap:12px;max-width:380px;margin:24px auto 8px}
-.btn{font-family:Jost,sans-serif;letter-spacing:.14em;text-transform:uppercase;font-size:13px;border-radius:999px;padding:16px 22px;border:1px solid var(--rose);cursor:pointer;text-align:center;transition:transform .08s,background .2s}
+.btn{font-family:Jost,sans-serif;letter-spacing:.14em;text-transform:uppercase;font-size:13px;border-radius:999px;padding:16px 22px;border:1px solid #111;cursor:pointer;text-align:center;transition:transform .08s,background .2s}
 .btn:active{transform:scale(.98)}
 .btn.primary{background:var(--black);color:#fff;border-color:var(--black)}
 .btn.primary:hover{background:#333}
@@ -65,9 +65,9 @@ h1{font-family:"Pinyon Script",cursive;font-weight:400;color:var(--black);font-s
 footer{text-align:center;padding:36px 0 44px;color:var(--muted)}
 footer .mono{font-size:30px}
 footer small{display:block;font-family:Jost,sans-serif;letter-spacing:.2em;font-size:10px;text-transform:uppercase;margin-top:4px}
-.admin-bar{display:none;gap:8px;flex-wrap:wrap;justify-content:center;margin:16px 0;padding:12px;border:1px dashed var(--rose);border-radius:14px;background:var(--card)}
+.admin-bar{display:none;gap:8px;flex-wrap:wrap;justify-content:center;margin:16px 0;padding:12px;border:1px dashed #111;border-radius:14px;background:var(--card)}
 .admin-bar.on{display:flex}
-.admin-bar .lbl{width:100%;text-align:center;font-family:Jost,sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--rose-deep)}
+.admin-bar .lbl{width:100%;text-align:center;font-family:Jost,sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#111}
 
 /* Appareil photo */
 .cam{position:fixed;inset:0;z-index:50;background:#000;display:none;flex-direction:column}
@@ -106,14 +106,14 @@ footer small{display:block;font-family:Jost,sans-serif;letter-spacing:.2em;font-
 .lb .row #lbClose{display:none}
 .lb .row button{background:none;border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:999px;font-family:Jost,sans-serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:11px 16px;cursor:pointer}
 .adminlink{display:inline-block;margin-top:18px;font-family:Jost,sans-serif;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);opacity:.55;text-decoration:none;border-bottom:1px solid transparent}
-.adminlink:hover{opacity:1;border-bottom-color:var(--rose)}
+.adminlink:hover{opacity:1;border-bottom-color:#111}
 .modal{position:fixed;inset:0;z-index:80;background:rgba(43,42,37,.55);display:none;align-items:center;justify-content:center;padding:16px}
 .modal.on{display:flex}
 .modal .box{background:var(--bg);border-radius:20px;padding:26px 22px 22px;max-width:340px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25)}
 .modal h3{font-family:"Pinyon Script",cursive;font-weight:400;color:var(--black);font-size:34px;margin:4px 0 6px}
 .modal p{margin:0 0 14px;font-size:16px;color:var(--muted)}
 .modal input{width:100%;font:inherit;font-size:18px;padding:13px 16px;border:1px solid var(--line);border-radius:999px;background:#fff;text-align:center;color:var(--ink)}
-.modal input:focus{outline:2px solid var(--rose);outline-offset:1px}
+.modal input:focus{outline:2px solid #111;outline-offset:1px}
 .modal .err{min-height:22px;margin:8px 0 2px;font-family:Jost,sans-serif;font-size:13px;color:#b3403d}
 .modal .btns{display:flex;gap:10px;justify-content:center;margin-top:6px}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--ink);color:#fff;font-family:Jost,sans-serif;font-size:13px;padding:11px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:90;max-width:90vw;text-align:center}
@@ -286,7 +286,7 @@ function renderStatus(){
   const pending = queue.length + running;
   const s = $('status');
   if (pending) s.innerHTML = `Envoi en cours… <b>${pending}</b> photo${pending>1?'s':''}`;
-  else if (failed) s.innerHTML = `${failed} photo${failed>1?'s':''} n'${failed>1?'ont':'a'} pas pu être envoyée${failed>1?'s':''}. <a href="#" id="retry" style="color:var(--rose-deep)">Réessayer</a>`;
+  else if (failed) s.innerHTML = `${failed} photo${failed>1?'s':''} n'${failed>1?'ont':'a'} pas pu être envoyée${failed>1?'s':''}. <a href="#" id="retry" style="color:#111;text-decoration:underline">Réessayer</a>`;
   else if (done) s.innerHTML = `<b>${done}</b> photo${done>1?'s':''} partagée${done>1?'s':''}. Merci !`;
   else s.textContent = '';
   const r = $('retry'); if (r) r.onclick = e => { e.preventDefault(); failedItems.splice(0).forEach(it => { it.tries = 0; queue.push(it); failed--; }); pump(); renderStatus(); };
