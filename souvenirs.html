@@ -399,8 +399,8 @@ $('lbSave').onclick = async () => {
   const p = list()[lbIdx]; if (!p) return;
   try {
     const blob = await (await fetch(urlOf(p))).blob(); const file = new File([blob], 'mariage-nathaelle-jeremy.jpg', { type:'image/jpeg' });
-    if (navigator.canShare && navigator.canShare({ files:[file] })){ try { await navigator.share({ files:[file] }); return; } catch(e){ if (e.name === 'AbortError') return; } }
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'mariage-nathaelle-jeremy.jpg'; document.body.appendChild(a); a.click(); a.remove();
+    if (!/Android/i.test(navigator.userAgent) && navigator.canShare && navigator.canShare({ files:[file] })){ try { await navigator.share({ files:[file] }); return; } catch(e){ if (e.name === 'AbortError') return; } }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'mariage-nathaelle-jeremy.jpg'; document.body.appendChild(a); a.click(); a.remove(); toast('Photo enregistrée sur votre téléphone');
   } catch(e){ toast("Impossible d'enregistrer cette photo."); }
 };
 $('lbHide').onclick = () => { const p = list()[lbIdx]; if (p) hidePhoto(p.id, !p.hidden); };
