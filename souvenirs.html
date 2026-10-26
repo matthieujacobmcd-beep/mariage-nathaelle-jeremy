@@ -97,7 +97,7 @@ footer small{display:block;font-family:Jost,sans-serif;letter-spacing:.2em;font-
 .shutter:active::after{transform:scale(.88)}
 .cam .still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;opacity:0;pointer-events:none;transition:opacity .25s}
 .cam .still.on{opacity:1;transition:none}
-.cam .thumb{position:absolute;left:16px;bottom:14px;width:60px;height:60px;z-index:3;display:none;pointer-events:none}
+.cam .thumb{position:absolute;left:16px;bottom:14px;width:60px;height:60px;z-index:3;display:none;pointer-events:auto;cursor:pointer;padding:0;background:none;border:0}
 .cam .thumb.on{display:block}
 .cam .thumb img{width:100%;height:100%;object-fit:cover;border-radius:10px;border:2px solid #fff;display:block}
 .cam .thumb .n{position:absolute;top:-8px;right:-8px;min-width:22px;height:22px;border-radius:11px;background:#fff;color:#111;font-family:Jost,sans-serif;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;padding:0 6px}
@@ -170,7 +170,7 @@ input[type=file]{display:none}
 
 <div id="cam" class="cam" role="dialog" aria-label="Appareil photo">
   <div class="tally" id="tally"></div>
-  <div class="vwrap" id="vwrap"><video id="video" playsinline muted autoplay></video><img class="still" id="still" alt=""><div class="thumb" id="thumb"><img id="thumbImg" alt=""><span class="n" id="thumbN">1</span></div><div class="ok" id="ok"><span>✓ Photo enregistrée</span></div><div class="zoombar" id="zoombar"><button data-z="0.5" hidden>0,5×</button><button data-z="1" class="on">1×</button><button data-z="2">2×</button><button data-z="3">3×</button></div></div>
+  <div class="vwrap" id="vwrap"><video id="video" playsinline muted autoplay></video><img class="still" id="still" alt=""><button class="thumb" id="thumb" aria-label="Voir la galerie"><img id="thumbImg" alt=""><span class="n" id="thumbN">1</span></button><div class="ok" id="ok"><span>✓ Photo enregistrée</span></div><div class="zoombar" id="zoombar"><button data-z="0.5" hidden>0,5×</button><button data-z="1" class="on">1×</button><button data-z="2">2×</button><button data-z="3">3×</button></div></div>
   <button class="xbtn" id="camX" aria-label="Fermer">✕</button>
   <div class="flash" id="flash"></div>
   <div class="screenflash" id="sflash"></div>
@@ -455,6 +455,7 @@ $('camFlash').onclick = () => {
   flashOn = !flashOn; paintFlash();
 };
 async function torch(on){ try { await stream.getVideoTracks()[0].applyConstraints({ advanced:[{ torch:on }] }); } catch(e){} }
+$('thumb').onclick = () => { closeCam(); setTimeout(() => { const g = document.querySelector('.bar') || $('grid'); if (g) g.scrollIntoView({ behavior:'smooth', block:'start' }); }, 80); };
 $('btnCam').onclick = openCam; $('camX').onclick = () => closeCam();
 document.querySelectorAll('#zoombar button').forEach(b => b.onclick = () => setZoom(+b.dataset.z));
 (function(){ // pincer pour zoomer
