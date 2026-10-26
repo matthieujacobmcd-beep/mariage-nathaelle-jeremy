@@ -85,6 +85,12 @@ footer small{display:block;font-family:Jost,sans-serif;letter-spacing:.2em;font-
 @keyframes flash{0%{opacity:.85}100%{opacity:0}}
 .cam .ctrl{display:flex;align-items:center;justify-content:space-between;padding:18px 28px calc(18px + env(safe-area-inset-bottom));background:#000}
 .cam .ctrl button{background:none;border:0;color:#fff;font-family:Jost,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;width:84px;padding:10px 0;cursor:pointer}
+.cam .ctrl #camFlash,.cam .ctrl #camFlip{width:84px;height:48px;display:flex;align-items:center;justify-content:center;padding:0;font-size:26px;letter-spacing:0;text-transform:none}
+.cam .ctrl #camFlash svg{width:28px;height:28px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linejoin:round}
+.cam .ctrl #camFlash.on svg{fill:#ffd23f;stroke:#ffd23f}
+.cam .ctrl #camFlash .slash{stroke:#fff;stroke-width:1.8}
+.cam .ctrl #camFlash.on .slash{display:none}
+.cam .screenflash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;transition:opacity .12s;z-index:2}
 .cam .ctrl .shutter{width:74px;height:74px;border-radius:50%;border:4px solid #fff;background:transparent;position:relative;cursor:pointer;padding:0}
 .shutter::after{content:"";position:absolute;inset:5px;border-radius:50%;background:#fff;transition:transform .08s}
 .shutter:active::after{transform:scale(.88)}
@@ -120,7 +126,6 @@ input[type=file]{display:none}
 
 <div class="wrap">
   <header class="top">
-    <div class="mono">N &amp; J</div>
     <h1>Nos souvenirs</h1>
     <div class="date">19 juin 2027 · Château des Anges</div>
     <p class="intro">Prenez des photos et partagez-les avec tous les invités : elles apparaissent ici, tout de suite. Sans compte, sans rien à télécharger.</p>
@@ -155,10 +160,11 @@ input[type=file]{display:none}
   <div class="vwrap" id="vwrap"><video id="video" playsinline muted autoplay></video><div class="zoombar" id="zoombar"><button data-z="1" class="on">1×</button><button data-z="2">2×</button><button data-z="3">3×</button></div></div>
   <button class="xbtn" id="camX" aria-label="Fermer">✕</button>
   <div class="flash" id="flash"></div>
+  <div class="screenflash" id="sflash"></div>
   <div class="ctrl">
-    <button id="camClose">Fermer</button>
+    <button id="camFlash" aria-label="Flash" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M13 2 5 13.5h6L10 22l9-12.5h-6z"/><path class="slash" d="M3 3l18 18"/></svg></button>
     <button class="shutter" id="shutter" aria-label="Prendre la photo"></button>
-    <button id="camFlip">Retourner</button>
+    <button id="camFlip" aria-label="Changer de caméra">🔄</button>
   </div>
 </div>
 
@@ -387,26 +393,24 @@ $('lbSave').onclick = async () => {
 $('lbHide').onclick = () => { const p = list()[lbIdx]; if (p) hidePhoto(p.id, !p.hidden); };
 
 /* ---------- appareil photo intégré ---------- */
-let stream = null, facing = 'environment', zoom = 1, hwZoom = null;
+let stream = null, facing = 'environment', zoom = 1, hwZoom = null, hwTorch = false, flashOn = false;
 async function startStream(){
   stopStream();
   stream = await navigator.mediaDevices.getUserMedia({ audio:false, video:{ facingMode:{ ideal: facing }, width:{ ideal:1920 }, height:{ ideal:1440 } } });
   const v = $('video'); v.srcObject = stream; await v.play().catch(()=>{});
-  hwZoom = null;
-  try { const tr = stream.getVideoTracks()[0], cap = tr.getCapabilities ? tr.getCapabilities() : {}; if (cap.zoom && cap.zoom.max > 1) hwZoom = { min: cap.zoom.min || 1, max: cap.zoom.max }; } catch(e){}
+  hwZoom = null; hwTorch = false;
+  try { const tr = stream.getVideoTracks()[0], cap = tr.getCapabilities ? tr.getCapabilities() : {}; if (cap.zoom && cap.zoom.max > 1) hwZoom = { min: cap.zoom.min || 1, max: cap.zoom.max }; if (cap.torch) hwTorch = true; } catch(e){}
   setZoom(1);
 }
 function setZoom(z){
-  $('zoombar').hidden = !hwZoom;
-  if (!hwZoom){ $('video').style.transform = facing === 'user' ? 'scaleX(-1)' : 'none'; zoom = 1; return; }
-  const max = Math.min(hwZoom.max, 8);
+  const max = hwZoom ? Math.min(hwZoom.max, 8) : 3;
   document.querySelectorAll('#zoombar button').forEach(b => b.hidden = +b.dataset.z > max);
   zoom = Math.max(1, Math.min(max, z));
   const v = $('video'), mir = facing === 'user' ? 'scaleX(-1) ' : '';
   if (hwZoom && stream){
     v.style.transform = mir.trim() || 'none';
     stream.getVideoTracks()[0].applyConstraints({ advanced:[{ zoom: Math.max(hwZoom.min, zoom) }] }).catch(()=>{});
-  }
+  } else v.style.transform = mir + 'scale(' + zoom + ')';
   document.querySelectorAll('#zoombar button').forEach(b => b.classList.toggle('on', Math.abs(+b.dataset.z - zoom) < 0.25));
 }
 function stopStream(){ if (stream){ stream.getTracks().forEach(t => t.stop()); stream = null; } }
@@ -417,25 +421,39 @@ async function openCam(){
   catch(e){ toast("Caméra indisponible : j'ouvre l'appareil photo du téléphone."); setTimeout(() => $('fileCapture').click(), 600); }
 }
 function closeCam(fromPop){ if (!$('cam').classList.contains('on')) return; stopStream(); $('cam').classList.remove('on'); document.body.style.overflow = ''; if (fromPop !== true && history.state && history.state.ov === 'cam'){ try { history.back(); } catch(e){} } }
-$('btnCam').onclick = openCam; $('camClose').onclick = () => closeCam(); $('camX').onclick = () => closeCam();
+function paintFlash(){ $('camFlash').classList.toggle('on', flashOn); $('camFlash').setAttribute('aria-pressed', flashOn); }
+$('camFlash').onclick = () => {
+  if (!flashOn && !hwTorch && facing !== 'user'){ toast("Flash indisponible sur ce téléphone."); return; }
+  flashOn = !flashOn; paintFlash();
+};
+async function torch(on){ try { await stream.getVideoTracks()[0].applyConstraints({ advanced:[{ torch:on }] }); } catch(e){} }
+$('btnCam').onclick = openCam; $('camX').onclick = () => closeCam();
 document.querySelectorAll('#zoombar button').forEach(b => b.onclick = () => setZoom(+b.dataset.z));
 (function(){ // pincer pour zoomer
   const w = $('vwrap'); let d0 = 0, z0 = 1;
   const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
-  w.addEventListener('touchstart', e => { if (hwZoom && e.touches.length === 2){ d0 = dist(e.touches); z0 = zoom; } }, {passive:true});
+  w.addEventListener('touchstart', e => { if (e.touches.length === 2){ d0 = dist(e.touches); z0 = zoom; } }, {passive:true});
   w.addEventListener('touchmove', e => { if (e.touches.length === 2 && d0){ e.preventDefault(); setZoom(z0 * dist(e.touches) / d0); } }, {passive:false});
   w.addEventListener('touchend', e => { if (e.touches.length < 2) d0 = 0; }, {passive:true});
-  w.addEventListener('wheel', e => { if (!hwZoom) return; e.preventDefault(); setZoom(zoom * (e.deltaY < 0 ? 1.1 : 0.9)); }, {passive:false});
+  w.addEventListener('wheel', e => { e.preventDefault(); setZoom(zoom * (e.deltaY < 0 ? 1.1 : 0.9)); }, {passive:false});
 })();
-$('camFlip').onclick = async () => { facing = facing === 'user' ? 'environment' : 'user'; try { await startStream(); } catch(e){ toast('Impossible de changer de caméra.'); } };
+$('camFlip').onclick = async () => { facing = facing === 'user' ? 'environment' : 'user'; try { await startStream(); if (flashOn && facing !== 'user' && !hwTorch){ flashOn = false; paintFlash(); } } catch(e){ toast('Impossible de changer de caméra.'); } };
+let shooting = false;
 $('shutter').onclick = async () => {
-  const v = $('video'); if (!v.videoWidth) return;
-  const f = $('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');
-  if (navigator.vibrate) navigator.vibrate(15);
-  // on fige l'image tout de suite, le traitement se fait ensuite
-  const sw = v.videoWidth, sh = v.videoHeight;
-  const c = document.createElement('canvas'); c.width = Math.round(sw); c.height = Math.round(sh); c.getContext('2d').drawImage(v, (v.videoWidth - sw) / 2, (v.videoHeight - sh) / 2, sw, sh, 0, 0, c.width, c.height);
-  enqueue(c);
+  const v = $('video'); if (!v.videoWidth || shooting) return; shooting = true;
+  try {
+    const useTorch = flashOn && hwTorch, useScreen = flashOn && !hwTorch && facing === 'user';
+    if (useTorch){ await torch(true); await new Promise(r => setTimeout(r, 350)); }
+    if (useScreen){ $('sflash').style.opacity = 1; await new Promise(r => setTimeout(r, 300)); }
+    // on fige l'image tout de suite, le traitement se fait ensuite
+    const dz = hwZoom ? 1 : zoom, sw = v.videoWidth / dz, sh = v.videoHeight / dz;
+    const c = document.createElement('canvas'); c.width = Math.round(sw); c.height = Math.round(sh); c.getContext('2d').drawImage(v, (v.videoWidth - sw) / 2, (v.videoHeight - sh) / 2, sw, sh, 0, 0, c.width, c.height);
+    const f = $('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');
+    if (navigator.vibrate) navigator.vibrate(15);
+    if (useTorch) torch(false);
+    if (useScreen) $('sflash').style.opacity = 0;
+    enqueue(c);
+  } finally { shooting = false; }
 };
 
 /* ---------- galerie du téléphone / appareil photo natif ---------- */
