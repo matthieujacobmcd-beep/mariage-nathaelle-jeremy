@@ -87,7 +87,8 @@ footer small{display:block;font-family:Jost,sans-serif;letter-spacing:.2em;font-
 .cam .ctrl button{background:none;border:0;color:#fff;font-family:Jost,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;width:84px;padding:10px 0;cursor:pointer}
 .cam .ctrl #camFlash,.cam .ctrl #camFlip{width:84px;height:48px;display:flex;align-items:center;justify-content:center;padding:0;font-size:26px;letter-spacing:0;text-transform:none}
 .cam .ctrl #camFlash svg{width:28px;height:28px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linejoin:round}
-.cam .ctrl #camFlash.on svg{fill:#ffd23f;stroke:#ffd23f}
+.cam .ctrl #camFlash.on svg{fill:#fff;stroke:#fff}
+.cam .ctrl #camFlip svg{width:28px;height:28px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .cam .ctrl #camFlash .slash{stroke:#fff;stroke-width:1.8}
 .cam .ctrl #camFlash.on .slash{display:none}
 .cam .screenflash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;transition:opacity .12s;z-index:2}
@@ -164,7 +165,7 @@ input[type=file]{display:none}
   <div class="ctrl">
     <button id="camFlash" aria-label="Flash" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M13 2 5 13.5h6L10 22l9-12.5h-6z"/><path class="slash" d="M3 3l18 18"/></svg></button>
     <button class="shutter" id="shutter" aria-label="Prendre la photo"></button>
-    <button id="camFlip" aria-label="Changer de caméra">🔄</button>
+    <button id="camFlip" aria-label="Changer de caméra"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 0-14-5.3L4 9"/><path d="M4 4v5h5"/><path d="M4 12a8 8 0 0 0 14 5.3L20 15"/><path d="M20 20v-5h-5"/></svg></button>
   </div>
 </div>
 
