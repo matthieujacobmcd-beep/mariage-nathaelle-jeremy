@@ -95,7 +95,19 @@ footer small{display:block;font-family:Jost,sans-serif;letter-spacing:.2em;font-
 .cam .ctrl .shutter{width:74px;height:74px;border-radius:50%;border:4px solid #fff;background:transparent;position:relative;cursor:pointer;padding:0}
 .shutter::after{content:"";position:absolute;inset:5px;border-radius:50%;background:#fff;transition:transform .08s}
 .shutter:active::after{transform:scale(.88)}
-.cam .tally{position:absolute;top:calc(14px + env(safe-area-inset-top));left:0;right:0;text-align:center;color:#fff;font-family:Jost,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.cam .still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;opacity:0;pointer-events:none;transition:opacity .25s}
+.cam .still.on{opacity:1;transition:none}
+.cam .thumb{position:absolute;left:16px;bottom:14px;width:60px;height:60px;z-index:3;display:none;pointer-events:none}
+.cam .thumb.on{display:block}
+.cam .thumb img{width:100%;height:100%;object-fit:cover;border-radius:10px;border:2px solid #fff;display:block}
+.cam .thumb .n{position:absolute;top:-8px;right:-8px;min-width:22px;height:22px;border-radius:11px;background:#fff;color:#111;font-family:Jost,sans-serif;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;padding:0 6px}
+.cam .thumb.pop{animation:pop .45s ease-out}
+@keyframes pop{0%{transform:scale(2.4);opacity:.2}60%{transform:scale(.92);opacity:1}100%{transform:scale(1)}}
+.cam .ok{position:absolute;left:0;right:0;top:50%;margin-top:-34px;z-index:4;display:flex;justify-content:center;pointer-events:none;opacity:0}
+.cam .ok span{background:rgba(0,0,0,.6);color:#fff;font-family:Jost,sans-serif;font-size:14px;letter-spacing:.12em;text-transform:uppercase;padding:12px 20px;border-radius:999px}
+.cam .ok.go{animation:okp 1.1s ease-out}
+@keyframes okp{0%{opacity:0;transform:scale(.9)}15%{opacity:1;transform:scale(1)}75%{opacity:1}100%{opacity:0}}
+.cam .tally{position:absolute;z-index:3;top:calc(24px + env(safe-area-inset-top));left:64px;right:64px;text-align:center;color:#fff;font-family:Jost,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;text-shadow:0 1px 6px rgba(0,0,0,.6)}
 
 /* Visionneuse */
 .lb{position:fixed;inset:0;z-index:60;background:rgba(20,18,16,.94);display:none;flex-direction:column}
@@ -158,7 +170,7 @@ input[type=file]{display:none}
 
 <div id="cam" class="cam" role="dialog" aria-label="Appareil photo">
   <div class="tally" id="tally"></div>
-  <div class="vwrap" id="vwrap"><video id="video" playsinline muted autoplay></video><div class="zoombar" id="zoombar"><button data-z="1" class="on">1×</button><button data-z="2">2×</button><button data-z="3">3×</button></div></div>
+  <div class="vwrap" id="vwrap"><video id="video" playsinline muted autoplay></video><img class="still" id="still" alt=""><div class="thumb" id="thumb"><img id="thumbImg" alt=""><span class="n" id="thumbN">1</span></div><div class="ok" id="ok"><span>✓ Photo enregistrée</span></div><div class="zoombar" id="zoombar"><button data-z="1" class="on">1×</button><button data-z="2">2×</button><button data-z="3">3×</button></div></div>
   <button class="xbtn" id="camX" aria-label="Fermer">✕</button>
   <div class="flash" id="flash"></div>
   <div class="screenflash" id="sflash"></div>
@@ -290,7 +302,7 @@ function renderStatus(){
   else if (done) s.innerHTML = `<b>${done}</b> photo${done>1?'s':''} partagée${done>1?'s':''}. Merci !`;
   else s.textContent = '';
   const r = $('retry'); if (r) r.onclick = e => { e.preventDefault(); failedItems.splice(0).forEach(it => { it.tries = 0; queue.push(it); failed--; }); pump(); renderStatus(); };
-  $('tally').textContent = sentThisSession ? `${sentThisSession} photo${sentThisSession>1?'s':''} partagée${sentThisSession>1?'s':''}` : '';
+  $('tally').textContent = pending ? `Envoi en cours…` : failed ? `${failed} à renvoyer` : sentThisSession ? `✓ ${sentThisSession} photo${sentThisSession>1?'s':''} partagée${sentThisSession>1?'s':''}` : '';
 }
 const failedItems = [];
 async function pump(){
@@ -418,7 +430,7 @@ function stopStream(){ if (stream){ stream.getTracks().forEach(t => t.stop()); s
 async function openCam(){
   if (!uploadOpen) return;
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return $('fileCapture').click();
-  try { await startStream(); $('cam').classList.add('on'); document.body.style.overflow = 'hidden'; renderStatus(); try { history.pushState({ ov:'cam' }, ''); } catch(e){} }
+  shots = 0; $('thumb').classList.remove('on'); $('still').classList.remove('on'); try { await startStream(); $('cam').classList.add('on'); document.body.style.overflow = 'hidden'; renderStatus(); try { history.pushState({ ov:'cam' }, ''); } catch(e){} }
   catch(e){ toast("Caméra indisponible : j'ouvre l'appareil photo du téléphone."); setTimeout(() => $('fileCapture').click(), 600); }
 }
 function closeCam(fromPop){ if (!$('cam').classList.contains('on')) return; stopStream(); $('cam').classList.remove('on'); document.body.style.overflow = ''; if (fromPop !== true && history.state && history.state.ov === 'cam'){ try { history.back(); } catch(e){} } }
@@ -439,6 +451,14 @@ document.querySelectorAll('#zoombar button').forEach(b => b.onclick = () => setZ
   w.addEventListener('wheel', e => { e.preventDefault(); setZoom(zoom * (e.deltaY < 0 ? 1.1 : 0.9)); }, {passive:false});
 })();
 $('camFlip').onclick = async () => { facing = facing === 'user' ? 'environment' : 'user'; try { await startStream(); if (flashOn && facing !== 'user' && !hwTorch){ flashOn = false; paintFlash(); } } catch(e){ toast('Impossible de changer de caméra.'); } };
+let shots = 0, stillT = null;
+function showShot(c){
+  shots++;
+  const url = c.toDataURL('image/jpeg', .6), st = $('still');
+  st.src = url; st.classList.add('on'); clearTimeout(stillT); stillT = setTimeout(() => st.classList.remove('on'), 450);
+  $('thumbImg').src = url; $('thumbN').textContent = shots; const t = $('thumb'); t.classList.add('on'); t.classList.remove('pop'); void t.offsetWidth; t.classList.add('pop');
+  const ok = $('ok'); ok.classList.remove('go'); void ok.offsetWidth; ok.classList.add('go');
+}
 let shooting = false;
 $('shutter').onclick = async () => {
   const v = $('video'); if (!v.videoWidth || shooting) return; shooting = true;
@@ -453,7 +473,7 @@ $('shutter').onclick = async () => {
     if (navigator.vibrate) navigator.vibrate(15);
     if (useTorch) torch(false);
     if (useScreen) $('sflash').style.opacity = 0;
-    enqueue(c);
+    enqueue(c); showShot(c);
   } finally { shooting = false; }
 };
 
