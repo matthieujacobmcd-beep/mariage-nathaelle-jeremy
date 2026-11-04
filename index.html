@@ -396,13 +396,17 @@
   .stay-choice input:checked + label .stay-dot{ background:var(--gold); box-shadow:inset 0 0 0 3px #FBF1EF; }
   @media (max-width:560px){ .stay-choice{ grid-template-columns:1fr; } .field .stay-choice label{ padding:16px 14px; } }
   .nuit-note{ font-family:'EB Garamond', serif; font-style:italic; font-size:15px; color:var(--ink-soft); margin-top:14px; line-height:1.5; text-align:center; }
-  .rsvp-pay{ display:none; margin-top:22px; padding:22px 18px; border:1px solid var(--gold); background:var(--ivory); text-align:center; font-family:'Jost', sans-serif; font-style:normal; font-size:14px; line-height:1.6; color:var(--ink); }
-  .rsvp-pay strong{ display:block; font-family:'Cormorant Garamond', serif; font-size:22px; font-weight:500; margin-bottom:6px; }
-  .rsvp-pay .brunch-btn{ margin-top:14px; text-decoration:none; }
+  .rsvp-pay{ display:none; margin:26px auto 4px; max-width:440px; padding:30px 26px 28px; background:var(--ivory-deep); border-top:1px solid var(--gold); border-bottom:1px solid var(--gold); text-align:center; font-style:normal; }
+  .pay-eyebrow{ display:block; font-family:'Jost', sans-serif; font-size:11px; letter-spacing:0.22em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; }
+  .pay-title{ display:block; font-family:'Pinyon Script', cursive; font-size:38px; line-height:1.1; color:#C98A87; margin-bottom:12px; }
+  .pay-text{ display:block; font-family:'EB Garamond', serif; font-style:italic; font-size:17px; line-height:1.5; color:var(--ink-soft); margin:0 auto 20px; max-width:340px; }
+  .pay-line{ display:flex; justify-content:space-between; align-items:baseline; gap:12px; max-width:320px; margin:0 auto 22px; padding:12px 2px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); font-family:'Jost', sans-serif; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink); }
+  .pay-amount{ white-space:nowrap; font-family:'Cormorant Garamond', serif; font-size:24px; letter-spacing:0; text-transform:none; color:var(--ink); }
+  .rsvp-pay .brunch-btn{ text-decoration:none; }
 
   /* ---------- AVANT LE 1ER MARS ---------- */
   .todo{ background:var(--ivory); padding:80px 0; }
-  .todo-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:26px; max-width:960px; margin:0 auto; }
+  .todo-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:26px; max-width:680px; margin:0 auto; }
   .todo-card{ background:var(--ivory-deep); border:1px solid var(--line); padding:34px 26px 30px; text-align:center; display:flex; flex-direction:column; align-items:center; }
   .todo-num{ width:38px; height:38px; border-radius:50%; border:1px solid var(--gold); color:var(--gold); display:flex; align-items:center; justify-content:center; font-family:'Jost', sans-serif; font-size:16px; line-height:1; font-variant-numeric:lining-nums tabular-nums; margin-bottom:16px; }
   .todo-card h3{ font-family:'Cormorant Garamond', serif; font-weight:500; font-size:24px; line-height:1.2; margin:0 0 6px; }
@@ -416,8 +420,9 @@
 
   /* ---------- RSVP ---------- */
   .rsvp{ background:var(--ivory-deep); }
-  .rsvp .rsvp-box, .enfance .rsvp-box{ background:var(--ivory); }
+  .rsvp .rsvp-box{ background:var(--ivory); }
   .rsvp .rsvp-pay{ background:var(--ivory-deep); }
+  @media (max-width:520px){ .pay-line{ font-size:11px; letter-spacing:0.06em; } .pay-title{ font-size:32px; } }
   .rsvp-box{
     max-width:600px; margin:0 auto;
     background:var(--ivory-deep);
@@ -458,7 +463,10 @@
 
 
   /* ---------- QUI EST CET ENFANT ---------- */
-  .enfance{ background:var(--ivory-deep); }
+  .enfance{ background:var(--ivory); }
+  .enfance .rsvp-box{ background:var(--ivory-deep)!important; }
+  .p-pay{ margin-top:10px; font-style:italic; }
+  .p-pay a{ color:inherit; text-decoration:underline; text-underline-offset:3px; }
   .enfance-file{ position:relative; display:block; border:1px dashed var(--line); padding:26px 16px; text-align:center; cursor:pointer; transition:border-color .3s ease; }
   .enfance-file:hover{ border-color:var(--wine); }
   .enfance-file input{ position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; }
@@ -476,7 +484,7 @@
 
   /* ---------- FOOTER ---------- */
   footer{
-    text-align:center; padding:70px 24px 46px; background:var(--ivory);
+    text-align:center; padding:70px 24px 46px; background:var(--ivory-deep);
   }
   .footer-mono{ font-family:'Cormorant Garamond', serif; font-style:italic; font-size:30px; margin-bottom:12px; }
   footer p{ font-family:'Jost', sans-serif; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--ink-soft); }
@@ -526,7 +534,6 @@
     <a href="#lieu" class="nav-close-link">Le lieu</a>
     <a href="#dresscode" class="nav-close-link">Tenue</a>
     <a href="#rsvp" class="nav-close-link">RSVP</a>
-    <a href="#brunch" class="nav-close-link">Brunch</a>
     <a href="#enfance" class="nav-close-link">Surprise</a>
   </div>
   <button class="nav-toggle" id="navToggle" aria-label="Menu">
@@ -691,7 +698,8 @@
       </div>
       <div class="p-card">
         <h3>Hébergement</h3>
-        <p>Des chambres sont disponibles sur place pour la nuit du 19 au 20 juin.</p>
+        <p>Des chambres sont disponibles sur place pour la nuit du 19 au 20 juin. Le lendemain, brunch à 11h avec accès à la piscine et à la pétanque. Vous pourrez réserver en répondant au RSVP.</p>
+        <p class="p-pay">Déjà répondu ? <a href="https://mariage-nathaelle-et-jeremy.sumupstore.com" target="_blank" rel="noopener">Régler ma nuit</a></p>
       </div>
       <div class="p-card">
         <h3>Enfants</h3>
@@ -733,23 +741,17 @@
   <div class="container">
     <div class="section-head reveal">
       <span class="eyebrow">Avant le 1er mars 2027</span>
-      <h2>En trois étapes</h2>
+      <h2>En deux étapes</h2>
     </div>
     <div class="todo-grid reveal">
       <div class="todo-card">
         <div class="todo-num">1</div>
-        <h3>Confirmez votre présence</h3>
+        <h3>Confirmez votre présence &amp; votre nuit</h3>
         <div class="todo-opt">Indispensable</div>
         <a href="#rsvp" class="brunch-btn todo-link">Répondre</a>
       </div>
       <div class="todo-card">
         <div class="todo-num">2</div>
-        <h3>Réservez la nuit &amp; le brunch</h3>
-        <div class="todo-opt">Facultatif</div>
-        <a href="#brunch" class="brunch-btn todo-link">Réserver</a>
-      </div>
-      <div class="todo-card">
-        <div class="todo-num">3</div>
         <h3>Envoyez une photo de vous tout petit</h3>
         <div class="todo-opt">Facultatif</div>
         <a href="#enfance" class="brunch-btn todo-link">Envoyer</a>
@@ -814,36 +816,10 @@
 
       <button type="submit" class="rsvp-submit">Envoyer ma réponse</button>
       <div class="rsvp-error" id="rsvpError">Oups, l'envoi n'a pas fonctionné. Vos réponses sont conservées : merci de réessayer dans quelques minutes.</div>
-      <div class="rsvp-confirm" id="rsvpConfirm">Merci ! Votre réponse a bien été prise en compte.<div class="rsvp-pay" id="rsvpPay"><strong>Plus qu'une petite étape</strong>Pour confirmer votre <span id="payWhat"></span>, il vous suffit de régler votre participation en ligne.<br>Montant : <b id="payAmount"></b><br><a href="https://mariage-nathaelle-et-jeremy.sumupstore.com" id="payBtn" class="brunch-btn" target="_blank" rel="noopener">Finaliser ma réservation</a></div><span id="rsvpExtra" style="display:block;font-size:17px;margin-top:12px"><span id="rsvpBrunchLine">Vous pouvez aussi <a href="#brunch" id="rsvpToBrunch">réserver la nuit et le brunch du lendemain</a> sur place.<br></span>Et n'oubliez pas notre petite surprise : <a href="#enfance" id="rsvpToEnfance">envoyez-nous une photo de vous tout petit</a> !</span></div>
+      <div class="rsvp-confirm" id="rsvpConfirm">Merci ! Votre réponse a bien été prise en compte.<div class="rsvp-pay" id="rsvpPay"><span class="pay-eyebrow">Dernière étape</span><span class="pay-title">Votre nuit au château</span><span class="pay-text">Pour confirmer votre réservation, il ne vous reste plus qu’à régler votre participation en ligne.</span><span class="pay-line"><span id="payWhat"></span><span class="pay-amount" id="payAmount"></span></span><a href="https://mariage-nathaelle-et-jeremy.sumupstore.com" id="payBtn" class="brunch-btn" target="_blank" rel="noopener">Finaliser ma réservation</a></div><span id="rsvpExtra" style="display:block;font-size:17px;margin-top:12px">Et n'oubliez pas notre petite surprise : <a href="#enfance" id="rsvpToEnfance">envoyez-nous une photo de vous tout petit</a> !</span></div>
     </form>
   </div>
 </section>
-
-<!-- ================= BRUNCH ================= -->
-<section id="brunch" class="brunch">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow">Le lendemain</span>
-      <h2>Brunch</h2>
-    </div>
-    <p class="dresscode-intro reveal">Pour celles et ceux qui souhaitent prolonger la fête sans se soucier du retour, un hébergement est proposé sur place ; le lendemain, rendez-vous à 11h00 pour le brunch, avec accès à la piscine et à la pétanque. Alors, serez-vous de la partie ?</p>
-    <div class="brunch-grid reveal">
-      <div class="brunch-box">
-        <span class="dc-eyebrow">Nuit &amp; Brunch</span>
-        <div class="brunch-price">20 &euro; <span>Par personne</span></div>
-        <p class="brunch-text">Hébergement, repas et accès piscine &amp; pétanque inclus.</p>
-        <a href="https://mariage-nathaelle-et-jeremy.sumupstore.com" target="_blank" rel="noopener" class="brunch-btn">Réserver nuit &amp; brunch</a>
-      </div>
-      <div class="brunch-box">
-        <span class="dc-eyebrow">Nuit</span>
-        <div class="brunch-price">10 &euro; <span>Par personne</span></div>
-        <p class="brunch-text">Vous restez dormir sur place mais ne participez pas au brunch.</p>
-        <a href="https://mariage-nathaelle-et-jeremy.sumupstore.com/article/nuit" target="_blank" rel="noopener" class="brunch-btn brunch-btn-outline">Réserver la nuit</a>
-      </div>
-    </div>
-  </div>
-</section>
-
 
 <!-- ================= QUI EST CET ENFANT ? ================= -->
 <section id="enfance" class="enfance">
@@ -975,12 +951,11 @@
 
     const success = () => {
       const nuit = !isAbsent && (document.getElementById('h-nb').checked || document.getElementById('h-n').checked);
-      document.getElementById('rsvpBrunchLine').style.display = nuit ? 'none' : '';
       if (nuit) {
         const nb = document.getElementById('h-nb').checked;
         const prix = nb ? 20 : 10, n = Math.max(1, invites.length);
-        document.getElementById('payWhat').textContent = nb ? 'nuit avec brunch' : 'nuit';
-        document.getElementById('payAmount').textContent = n + ' × ' + prix + ' € = ' + (n * prix) + ' €';
+        document.getElementById('payWhat').textContent = (nb ? 'Nuit & brunch' : 'Nuit seule') + ' · ' + n + ' personne' + (n > 1 ? 's' : '');
+        document.getElementById('payAmount').textContent = (n * prix) + ' €';
         document.getElementById('payBtn').href = nb ? 'https://mariage-nathaelle-et-jeremy.sumupstore.com' : 'https://mariage-nathaelle-et-jeremy.sumupstore.com/article/nuit';
         document.getElementById('rsvpPay').style.display = 'block';
       }
