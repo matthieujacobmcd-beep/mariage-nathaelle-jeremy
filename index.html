@@ -421,6 +421,16 @@
     font-family:'Cormorant Garamond', serif; font-style:italic; font-size:20px; color:var(--wine);
   }
 
+
+  /* ---------- QUI EST CET ENFANT ---------- */
+  .enfance{ background:var(--ivory); padding-top:0; }
+  .enfance-file{ position:relative; display:block; border:1px dashed var(--line); padding:26px 16px; text-align:center; cursor:pointer; transition:border-color .3s ease; }
+  .enfance-file:hover{ border-color:var(--wine); }
+  .enfance-file input{ position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; }
+  .enfance-file span{ font-family:'Jost', sans-serif; font-size:12px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft); }
+  .enfance-preview{ display:none; max-width:180px; max-height:220px; margin:18px auto 0; border:6px solid #fff; box-shadow:var(--shadow); }
+  .enfance-note{ font-family:'Jost', sans-serif; font-size:12px; color:var(--ink-soft); margin-top:10px; text-align:center; }
+
   /* ---------- FOOTER ---------- */
   footer{
     text-align:center; padding:70px 24px 46px; background:var(--ivory);
@@ -473,6 +483,7 @@
     <a href="#lieu" class="nav-close-link">Le lieu</a>
     <a href="#dresscode" class="nav-close-link">Tenue</a>
     <a href="#rsvp" class="nav-close-link">RSVP</a>
+    <a href="#enfance" class="nav-close-link">Le jeu</a>
     <a href="#brunch" class="nav-close-link">Brunch</a>
   </div>
   <button class="nav-toggle" id="navToggle" aria-label="Menu">
@@ -720,6 +731,42 @@
   </div>
 </section>
 
+<!-- ================= QUI EST CET ENFANT ? ================= -->
+<section id="enfance" class="enfance">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Avant le 1er mars 2027</span>
+      <h2>Qui est cet enfant ?</h2>
+    </div>
+    <p class="dresscode-intro reveal">Le jour du mariage, nous afficherons les photos d'enfance de tous nos invités, chacune avec un numéro. À vous de deviner qui se cache derrière chaque bouille ! Envoyez-nous une photo de vous petit(e), entre 3 et 10 ans. Chut, gardez le secret jusqu'au jour J…</p>
+    <form class="rsvp-box reveal" id="enfanceForm" action="https://formsubmit.co/nathaelleetjeremy@gmail.com" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="_subject" value="Photo « Qui est cet enfant ? » — Mariage Nathaelle &amp; Jérémy">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_next" value="https://matthieujacobmcd-beep.github.io/mariage-nathaelle-jeremy/?photo=merci#enfance">
+      <div class="field">
+        <label for="enfanceNom">Nom et prénom</label>
+        <input type="text" id="enfanceNom" name="Nom et prénom" placeholder="Ex. Marie Dupont" required>
+      </div>
+      <div class="field">
+        <label for="enfanceAge">Âge sur la photo</label>
+        <input type="number" id="enfanceAge" name="Âge sur la photo" min="3" max="10" placeholder="Entre 3 et 10 ans" required>
+      </div>
+      <div class="field">
+        <label for="enfancePhoto">Votre photo d'enfance</label>
+        <label class="enfance-file">
+          <input type="file" id="enfancePhoto" name="attachment" accept="image/*" required>
+          <span id="enfanceFileLabel">Choisir une photo</span>
+        </label>
+        <img class="enfance-preview" id="enfancePreview" alt="Aperçu de la photo">
+        <p class="enfance-note">Une photo par personne · format JPG ou PNG</p>
+      </div>
+      <button type="submit" class="rsvp-submit">Envoyer ma photo</button>
+      <div class="rsvp-confirm" id="enfanceConfirm">Merci ! Votre photo est bien arrivée. Rendez-vous le 19 juin pour le jeu !</div>
+    </form>
+  </div>
+</section>
+
 <!-- ================= BRUNCH ================= -->
 <section id="brunch" class="brunch">
   <div class="container">
@@ -828,6 +875,50 @@
         form.submit();
       });
   });
+
+  // « Qui est cet enfant ? » — photo réduite avant envoi, puis envoi classique à FormSubmit (pièce jointe)
+  (function(){
+    const f = document.getElementById('enfanceForm');
+    const input = document.getElementById('enfancePhoto');
+    const label = document.getElementById('enfanceFileLabel');
+    const preview = document.getElementById('enfancePreview');
+    const ok = document.getElementById('enfanceConfirm');
+    if (new URLSearchParams(location.search).get('photo') === 'merci') {
+      ok.style.display = 'block';
+      f.querySelector('.rsvp-submit').style.display = 'none';
+    }
+    input.addEventListener('change', () => {
+      const file = input.files[0];
+      if (!file) return;
+      label.textContent = file.name;
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = 'block';
+      // Réduit les grandes photos (max 1600 px) pour un envoi rapide
+      if (!/^image\/(jpeg|png|webp)$/.test(file.type) || typeof DataTransfer === 'undefined') return;
+      const img = new Image();
+      img.onload = () => {
+        const max = 1600, s = Math.min(1, max / Math.max(img.width, img.height));
+        if (s === 1 && file.size < 2e6) return;
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        c.toBlob(b => {
+          if (!b) return;
+          try {
+            const nom = (document.getElementById('enfanceNom').value || 'photo').replace(/[^\w\-]+/g, '_');
+            const dt = new DataTransfer();
+            dt.items.add(new File([b], 'enfance_' + nom + '.jpg', { type: 'image/jpeg' }));
+            input.files = dt.files;
+          } catch (e) {}
+        }, 'image/jpeg', 0.85);
+      };
+      img.src = preview.src;
+    });
+    f.addEventListener('submit', () => {
+      const b = f.querySelector('.rsvp-submit');
+      b.textContent = 'Envoi en cours…';
+    });
+  })();
 </script>
 
 </body>
