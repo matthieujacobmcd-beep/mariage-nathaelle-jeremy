@@ -353,12 +353,12 @@
   }
 
   /* ---------- BRUNCH ---------- */
-  .brunch{ background:var(--ivory-deep); }
+  .brunch{ background:var(--ivory); }
   #dresscode{ background:var(--ivory-deep); }
   .brunch-grid{ display:grid; grid-template-columns:1fr 1fr; gap:26px; max-width:720px; margin:0 auto; }
   .brunch-box{
     text-align:center;
-    padding:44px 32px; border:1px solid var(--gold-soft); background:var(--ivory); box-shadow:var(--shadow);
+    padding:44px 32px; border:1px solid var(--gold-soft); background:var(--ivory-deep); box-shadow:var(--shadow);
   }
   .brunch-text{ font-size:15.5px; color:var(--ink-soft); margin-bottom:26px; }
   .brunch-price{
@@ -382,17 +382,28 @@
   }
 
   /* ---------- RSVP : nuit sur place ---------- */
-  .rsvp-choice label small{ display:block; margin-top:4px; font-size:11px; letter-spacing:0.08em; text-transform:none; opacity:.85; }
-  .nuit-note{ font-family:'Jost', sans-serif; font-size:12.5px; color:var(--ink-soft); margin-top:10px; line-height:1.5; }
+  .stay-error{ display:none; font-family:'Cormorant Garamond', serif; font-style:italic; font-size:17px; color:#A0524D; text-align:center; margin-top:10px; }
+  .stay-choice{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .stay-choice input{ display:none; }
+  .field .stay-choice label{ position:relative; display:flex; flex-direction:column; align-items:center; text-align:center; gap:6px; padding:22px 12px 18px; margin:0; border:1px solid var(--line); background:var(--ivory); cursor:pointer; transition:border-color .25s ease, background .25s ease, box-shadow .25s ease; text-transform:none; letter-spacing:0; font-size:inherit; color:inherit; margin-bottom:0; }
+  .field .stay-choice label:hover{ border-color:var(--gold); }
+  .stay-dot, .stay-title, .stay-desc, .stay-price{ display:block; }
+  .stay-dot{ width:14px; height:14px; border-radius:50%; border:1px solid var(--gold); margin-bottom:4px; transition:all .25s ease; }
+  .stay-title{ font-family:'Cormorant Garamond', serif; font-style:italic; font-size:21px; color:var(--ink); line-height:1.1; }
+  .stay-desc{ font-family:'EB Garamond', serif; font-size:14.5px; color:var(--ink-soft); line-height:1.35; }
+  .stay-price{ white-space:nowrap; font-family:'Jost', sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--gold); margin-top:auto; padding-top:6px; }
+  .field .stay-choice input:checked + label{ border-color:var(--gold); background:#FBF1EF; box-shadow:0 6px 18px rgba(201,138,135,.15); }
+  .stay-choice input:checked + label .stay-dot{ background:var(--gold); box-shadow:inset 0 0 0 3px #FBF1EF; }
+  @media (max-width:560px){ .stay-choice{ grid-template-columns:1fr; } .field .stay-choice label{ padding:16px 14px; } }
+  .nuit-note{ font-family:'EB Garamond', serif; font-style:italic; font-size:15px; color:var(--ink-soft); margin-top:14px; line-height:1.5; text-align:center; }
   .rsvp-pay{ display:none; margin-top:22px; padding:22px 18px; border:1px solid var(--gold); background:var(--ivory); text-align:center; font-family:'Jost', sans-serif; font-style:normal; font-size:14px; line-height:1.6; color:var(--ink); }
   .rsvp-pay strong{ display:block; font-family:'Cormorant Garamond', serif; font-size:22px; font-weight:500; margin-bottom:6px; }
   .rsvp-pay .brunch-btn{ margin-top:14px; text-decoration:none; }
-  @media (max-width:520px){ .rsvp-choice-3{ flex-direction:column; } }
 
   /* ---------- AVANT LE 1ER MARS ---------- */
-  .todo{ background:var(--ivory-deep); padding:80px 0; }
+  .todo{ background:var(--ivory); padding:80px 0; }
   .todo-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:26px; max-width:960px; margin:0 auto; }
-  .todo-card{ background:var(--ivory); border:1px solid var(--line); padding:34px 26px 30px; text-align:center; display:flex; flex-direction:column; align-items:center; }
+  .todo-card{ background:var(--ivory-deep); border:1px solid var(--line); padding:34px 26px 30px; text-align:center; display:flex; flex-direction:column; align-items:center; }
   .todo-num{ width:38px; height:38px; border-radius:50%; border:1px solid var(--gold); color:var(--gold); display:flex; align-items:center; justify-content:center; font-family:'Jost', sans-serif; font-size:16px; line-height:1; font-variant-numeric:lining-nums tabular-nums; margin-bottom:16px; }
   .todo-card h3{ font-family:'Cormorant Garamond', serif; font-weight:500; font-size:24px; line-height:1.2; margin:0 0 6px; }
   .todo-opt{ font-family:'Jost', sans-serif; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:22px; min-height:14px; }
@@ -404,7 +415,9 @@
   }
 
   /* ---------- RSVP ---------- */
-  .rsvp{ background:var(--ivory); }
+  .rsvp{ background:var(--ivory-deep); }
+  .rsvp .rsvp-box, .enfance .rsvp-box{ background:var(--ivory); }
+  .rsvp .rsvp-pay{ background:var(--ivory-deep); }
   .rsvp-box{
     max-width:600px; margin:0 auto;
     background:var(--ivory-deep);
@@ -445,7 +458,7 @@
 
 
   /* ---------- QUI EST CET ENFANT ---------- */
-  .enfance{ background:var(--ivory); }
+  .enfance{ background:var(--ivory-deep); }
   .enfance-file{ position:relative; display:block; border:1px dashed var(--line); padding:26px 16px; text-align:center; cursor:pointer; transition:border-color .3s ease; }
   .enfance-file:hover{ border-color:var(--wine); }
   .enfance-file input{ position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; }
@@ -531,36 +544,6 @@
   </div>
   <div class="scroll-cue"><span>Découvrir</span><span class="line"></span></div>
 </header>
-
-<!-- ================= AVANT LE 1ER MARS ================= -->
-<section id="avant" class="todo">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow">Avant le 1er mars 2027</span>
-      <h2>En trois étapes</h2>
-    </div>
-    <div class="todo-grid reveal">
-      <div class="todo-card">
-        <div class="todo-num">1</div>
-        <h3>Confirmez votre présence</h3>
-        <div class="todo-opt">Indispensable</div>
-        <a href="#rsvp" class="brunch-btn todo-link">Répondre</a>
-      </div>
-      <div class="todo-card">
-        <div class="todo-num">2</div>
-        <h3>Réservez la nuit &amp; le brunch</h3>
-        <div class="todo-opt">Facultatif</div>
-        <a href="#brunch" class="brunch-btn todo-link">Réserver</a>
-      </div>
-      <div class="todo-card">
-        <div class="todo-num">3</div>
-        <h3>Envoyez une photo de vous tout petit</h3>
-        <div class="todo-opt">Facultatif</div>
-        <a href="#enfance" class="brunch-btn todo-link">Envoyer</a>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- ================= NOTRE HISTOIRE ================= -->
 <section id="histoire" class="story">
@@ -745,6 +728,36 @@
   </div>
 </section>
 
+<!-- ================= AVANT LE 1ER MARS ================= -->
+<section id="avant" class="todo">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Avant le 1er mars 2027</span>
+      <h2>En trois étapes</h2>
+    </div>
+    <div class="todo-grid reveal">
+      <div class="todo-card">
+        <div class="todo-num">1</div>
+        <h3>Confirmez votre présence</h3>
+        <div class="todo-opt">Indispensable</div>
+        <a href="#rsvp" class="brunch-btn todo-link">Répondre</a>
+      </div>
+      <div class="todo-card">
+        <div class="todo-num">2</div>
+        <h3>Réservez la nuit &amp; le brunch</h3>
+        <div class="todo-opt">Facultatif</div>
+        <a href="#brunch" class="brunch-btn todo-link">Réserver</a>
+      </div>
+      <div class="todo-card">
+        <div class="todo-num">3</div>
+        <h3>Envoyez une photo de vous tout petit</h3>
+        <div class="todo-opt">Facultatif</div>
+        <a href="#enfance" class="brunch-btn todo-link">Envoyer</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ================= RSVP ================= -->
 <section id="rsvp" class="rsvp">
   <div class="container">
@@ -780,16 +793,17 @@
         <div id="extraGuests"></div>
 
         <div class="field">
-          <label>Restez-vous dormir sur place ?</label>
-          <div class="rsvp-choice rsvp-choice-3">
+          <label>Souhaitez-vous prolonger la fête sur place ?</label>
+          <div class="stay-choice">
             <input type="radio" name="Hébergement" id="h-nb" value="Nuit &amp; brunch (20 €/pers.)">
-            <label for="h-nb">Nuit &amp; brunch<small>20 € / pers.</small></label>
+            <label for="h-nb"><span class="stay-dot"></span><span class="stay-title">Nuit &amp; brunch</span><span class="stay-desc">Une chambre au château et le brunch du lendemain</span><span class="stay-price">20 € par personne</span></label>
             <input type="radio" name="Hébergement" id="h-n" value="Nuit seule (10 €/pers.)">
-            <label for="h-n">Nuit seule<small>10 € / pers.</small></label>
+            <label for="h-n"><span class="stay-dot"></span><span class="stay-title">Nuit seule</span><span class="stay-desc">Une chambre au château</span><span class="stay-price">10 € par personne</span></label>
             <input type="radio" name="Hébergement" id="h-non" value="Non">
-            <label for="h-non">Non<small>&nbsp;</small></label>
+            <label for="h-non"><span class="stay-dot"></span><span class="stay-title">Non merci</span><span class="stay-desc">Nous rentrerons après la soirée</span><span class="stay-price">&nbsp;</span></label>
           </div>
-          <p class="nuit-note">La nuit et le brunch sont payants : le règlement se fait en ligne, juste après l'envoi de votre réponse.</p>
+          <p class="stay-error" id="stayError">Merci de nous indiquer si vous souhaitez rester sur place.</p>
+          <p class="nuit-note">Une petite participation est demandée pour la nuit et le brunch. Vous pourrez la régler en ligne juste après l'envoi de votre réponse.</p>
         </div>
       </div>
 
@@ -800,7 +814,7 @@
 
       <button type="submit" class="rsvp-submit">Envoyer ma réponse</button>
       <div class="rsvp-error" id="rsvpError">Oups, l'envoi n'a pas fonctionné. Vos réponses sont conservées : merci de réessayer dans quelques minutes.</div>
-      <div class="rsvp-confirm" id="rsvpConfirm">Merci ! Votre réponse a bien été prise en compte.<div class="rsvp-pay" id="rsvpPay"><strong>Dernière étape : le règlement</strong>Votre <span id="payWhat"></span> n'est réservée qu'après paiement.<br>Montant : <b id="payAmount"></b><br><a href="https://mariage-nathaelle-et-jeremy.sumupstore.com" id="payBtn" class="brunch-btn" target="_blank" rel="noopener">Régler ma réservation</a></div><span id="rsvpExtra" style="display:block;font-size:17px;margin-top:12px"><span id="rsvpBrunchLine">Vous pouvez aussi <a href="#brunch" id="rsvpToBrunch">réserver la nuit et le brunch du lendemain</a> sur place.<br></span>Et n'oubliez pas notre petite surprise : <a href="#enfance" id="rsvpToEnfance">envoyez-nous une photo de vous tout petit</a> !</span></div>
+      <div class="rsvp-confirm" id="rsvpConfirm">Merci ! Votre réponse a bien été prise en compte.<div class="rsvp-pay" id="rsvpPay"><strong>Plus qu'une petite étape</strong>Pour confirmer votre <span id="payWhat"></span>, il vous suffit de régler votre participation en ligne.<br>Montant : <b id="payAmount"></b><br><a href="https://mariage-nathaelle-et-jeremy.sumupstore.com" id="payBtn" class="brunch-btn" target="_blank" rel="noopener">Finaliser ma réservation</a></div><span id="rsvpExtra" style="display:block;font-size:17px;margin-top:12px"><span id="rsvpBrunchLine">Vous pouvez aussi <a href="#brunch" id="rsvpToBrunch">réserver la nuit et le brunch du lendemain</a> sur place.<br></span>Et n'oubliez pas notre petite surprise : <a href="#enfance" id="rsvpToEnfance">envoyez-nous une photo de vous tout petit</a> !</span></div>
     </form>
   </div>
 </section>
@@ -926,6 +940,16 @@
     presenceFields.querySelectorAll('input').forEach(i => i.disabled = isAbsent);
   }
   presenceRadios.forEach(r => r.addEventListener('change', updatePresenceVisibility));
+  // Choix de la nuit : les boutons radio étant masqués, on affiche nous-mêmes le rappel s'il manque une réponse
+  const stayError = document.getElementById('stayError');
+  document.querySelectorAll('input[name="Hébergement"]').forEach(r => {
+    r.addEventListener('invalid', (e) => {
+      e.preventDefault();
+      stayError.style.display = 'block';
+      document.querySelector('.stay-choice').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+    r.addEventListener('change', () => { stayError.style.display = 'none'; });
+  });
   updatePresenceVisibility();
 
   form.addEventListener('submit', (e) => {
