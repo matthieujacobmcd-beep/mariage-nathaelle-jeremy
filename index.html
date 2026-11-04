@@ -469,8 +469,8 @@
   .enfance .rsvp-box{ background:var(--ivory)!important; }
   .p-pay{ margin-top:10px; font-style:italic; }
   .p-pay a{ color:inherit; text-decoration:underline; text-underline-offset:3px; }
-  .enfance-file{ position:relative; display:block; border:1px dashed var(--line); padding:26px 16px; text-align:center; cursor:pointer; transition:border-color .3s ease; }
-  .enfance-file:hover{ border-color:var(--wine); }
+  .enfance-file{ position:relative; display:block; border:1px dashed var(--gold); padding:26px 16px; text-align:center; cursor:pointer; transition:border-color .3s ease; }
+  .enfance-file:hover{ border-color:#C98A87; border-style:solid; }
   .enfance-file input{ position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; }
   .enfance-file span{ font-family:'Jost', sans-serif; font-size:12px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft); }
   .enfance-preview{ display:none; max-width:180px; max-height:220px; margin:18px auto 0; border:6px solid #fff; box-shadow:var(--shadow); }
@@ -478,8 +478,8 @@
   .enfance-person:first-child{ border-top:none; padding-top:0; margin-top:0; }
   .enfance-person-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; font-family:'Jost', sans-serif; font-size:11.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--wine); }
   .enfance-remove{ background:none; border:none; cursor:pointer; font-family:'Jost', sans-serif; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-soft); text-decoration:underline; }
-  .enfance-add{ width:100%; padding:14px; margin:4px 0 8px; background:transparent; border:1px dashed var(--line); cursor:pointer; font-family:'Jost', sans-serif; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-soft); transition:border-color .3s ease; }
-  .enfance-add:hover{ border-color:var(--wine); color:var(--wine); }
+  .enfance-add{ width:100%; padding:14px; margin:4px 0 8px; background:transparent; border:1px dashed var(--gold); cursor:pointer; font-family:'Jost', sans-serif; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-soft); transition:border-color .3s ease; }
+  .enfance-add:hover{ border-color:#C98A87; border-style:solid; color:#C98A87; }
   .rsvp-error{ display:none; text-align:center; padding:18px 0 0; font-family:'Cormorant Garamond', serif; font-style:italic; font-size:18px; color:#A0524D; }
   .rsvp-confirm a{ color:inherit; text-decoration:underline; text-underline-offset:3px; }
   .enfance-note{ font-family:'Jost', sans-serif; font-size:12px; color:var(--ink-soft); margin-top:10px; text-align:center; }
@@ -1059,7 +1059,7 @@
         <div class="field"><label>Nom et prénom</label><input type="text" class="e-nom" placeholder="Ex. Marie Dupont" required></div>
         <div class="field"><label>Âge sur la photo</label><input type="number" class="e-age" min="3" max="10" placeholder="Entre 3 et 10 ans" required></div>
         <div class="field"><label>Photo d'enfance</label>
-          <label class="enfance-file"><input type="file" class="e-photo" accept="image/*" required><span class="e-label">Choisir une photo</span></label>
+          <label class="enfance-file"><input type="file" class="e-photo" accept="image/*" title="" required><span class="e-label">Choisir une photo</span></label>
           <img class="enfance-preview" alt="Aperçu de la photo">
         </div>`;
       const input = el.querySelector('.e-photo');
