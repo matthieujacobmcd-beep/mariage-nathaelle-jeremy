@@ -783,6 +783,7 @@
       <button type="button" class="enfance-add" id="enfanceAdd">+ Ajouter une autre personne</button>
       <p class="enfance-note">Une photo par personne · format JPG ou PNG</p>
       <button type="submit" class="rsvp-submit">Envoyer</button>
+      <div class="rsvp-error" id="enfanceError">Oups, l'envoi n'a pas fonctionné. Vos photos sont conservées : merci de réessayer dans quelques minutes.</div>
       <div class="rsvp-confirm" id="enfanceConfirm">Merci ! Vos photos sont bien arrivées. Rendez-vous le 19 juin…</div>
     </form>
   </div>
@@ -812,7 +813,15 @@
   }, { threshold: 0.15 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-  // RSVP form — submits to FormSubmit (nathaelleetjeremy@gmail.com) without leaving the page
+  // Réception des formulaires : script Google du compte NJ (RSVP → tableau « Mariage Data », photos → Drive privé)
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzjMmSPBjs--M42iIj1OXnx8dLVV7gIAqtHalhEUtuDuC7O04RlQKL1VcltYvOBgz9S0w/exec';
+  function sendToScript(payload){
+    return fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+      .then(r => r.json())
+      .then(d => { if (!d || !d.ok) throw new Error((d && d.error) || 'erreur'); return d; });
+  }
+
+  // RSVP form
   const form = document.getElementById('rsvpForm');
   const confirm = document.getElementById('rsvpConfirm');
   const rsvpError = document.getElementById('rsvpError');
@@ -857,23 +866,40 @@
     submitBtn.disabled = true;
     submitBtn.textContent = 'Envoi en cours…';
 
-    fetch('https://formsubmit.co/ajax/nathaelleetjeremy@gmail.com', {
-      method: 'POST',
-      headers: { 'Accept': 'application/json' },
-      body: new FormData(form)
-    })
-      .then((r) => {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        rsvpError.style.display = 'none';
-        confirm.style.display = 'block';
-        submitBtn.style.display = 'none';
-      })
-      .catch(() => {
-        // Envoi impossible (service indisponible, réseau…) : on reste sur la page, les réponses sont conservées
-        rsvpError.style.display = 'block';
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Réessayer';
-      });
+    const isAbsent = document.getElementById('non').checked;
+    const invites = [];
+    if (!isAbsent) {
+      form.querySelectorAll('#extraGuests input').forEach(i => { if (i.value.trim()) invites.push(i.value.trim()); });
+    }
+    const payload = {
+      type: 'rsvp',
+      famille: document.getElementById('famille').value.trim(),
+      presence: isAbsent ? 'Absent(e)' : 'Avec joie',
+      nombre: isAbsent ? 0 : invites.length,
+      invites: invites,
+      message: document.getElementById('message').value.trim()
+    };
+
+    const success = () => {
+      rsvpError.style.display = 'none';
+      confirm.style.display = 'block';
+      submitBtn.style.display = 'none';
+    };
+    const fail = () => {
+      rsvpError.style.display = 'block';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Réessayer';
+    };
+    // 1) Script Google (tableau « Mariage Data » + e-mail)
+    sendToScript(payload)
+      .then(success)
+      .catch(() =>
+        // 2) Secours : FormSubmit
+        fetch('https://formsubmit.co/ajax/nathaelleetjeremy@gmail.com', {
+          method: 'POST', headers: { 'Accept': 'application/json' }, body: new FormData(form)
+        }).then(r => { if (!r.ok) throw new Error(r.status); success(); })
+      )
+      .catch(fail);
   });
 
   // « Une photo de vous tout petit » — plusieurs personnes par envoi, photos réduites et renommées au nom de chacun
@@ -925,40 +951,51 @@
     addBtn.addEventListener('click', addPerson);
     addPerson();
 
-    // Réduit (max 1600 px) et renomme chaque photo « enfance_Nom_Prenom.jpg »
-    function prepare(input, nom){
+    // Réduit (max 1600 px) et prépare chaque photo « enfance_Nom_Prenom.jpg »
+    function prepare(el){
+      const input = el.querySelector('.e-photo');
+      const nom = el.querySelector('.e-nom').value.trim();
+      const age = el.querySelector('.e-age').value.trim();
+      const file = input.files[0];
+      const safe = (nom || 'photo').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w\-]+/g,'_');
+      const toB64 = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej; r.readAsDataURL(blob); });
+      const raw = () => toB64(file).then(data => ({ nom, age, data, mime: file.type || 'application/octet-stream', filename: 'enfance_' + safe + ((file.name.match(/\.[^.]+$/) || [''])[0]) }));
       return new Promise(resolve => {
-        const file = input.files[0];
-        if (!file || typeof DataTransfer === 'undefined') return resolve();
-        const safe = (nom || 'photo').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w\-]+/g,'_');
-        const setFile = (blob, ext, type) => {
-          try { const dt = new DataTransfer(); dt.items.add(new File([blob], 'enfance_' + safe + ext, { type })); input.files = dt.files; } catch(e) {}
-          resolve();
-        };
-        if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
-          const ext = (file.name.match(/\.[^.]+$/) || [''])[0];
-          return setFile(file, ext, file.type);
-        }
         const img = new Image();
-        img.onerror = () => resolve();
+        img.onerror = () => resolve(raw());
         img.onload = () => {
           const s = Math.min(1, 1600 / Math.max(img.width, img.height));
           const c = document.createElement('canvas');
           c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
           c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-          c.toBlob(b => b ? setFile(b, '.jpg', 'image/jpeg') : resolve(), 'image/jpeg', 0.85);
+          c.toBlob(b => {
+            if (!b) return resolve(raw());
+            resolve(toB64(b).then(data => ({ nom, age, data, mime: 'image/jpeg', filename: 'enfance_' + safe + '.jpg' })));
+          }, 'image/jpeg', 0.85);
         };
         img.src = URL.createObjectURL(file);
       });
     }
+    const err = document.getElementById('enfanceError');
     let sending = false;
     f.addEventListener('submit', (e) => {
       e.preventDefault();
       if (sending) return; sending = true;
       const b = f.querySelector('.rsvp-submit');
       b.textContent = 'Envoi en cours…'; b.disabled = true;
-      const jobs = [...list.querySelectorAll('.enfance-person')].map(el => prepare(el.querySelector('.e-photo'), el.querySelector('.e-nom').value.trim()));
-      Promise.all(jobs).then(() => f.submit());
+      err.style.display = 'none';
+      Promise.all([...list.querySelectorAll('.enfance-person')].map(prepare))
+        .then(personnes => sendToScript({ type: 'photos', personnes }))
+        .then(() => {
+          list.style.display = 'none'; addBtn.style.display = 'none'; b.style.display = 'none';
+          f.querySelector('.enfance-note').style.display = 'none';
+          ok.style.display = 'block';
+        })
+        .catch(() => {
+          err.style.display = 'block';
+          b.disabled = false; b.textContent = 'Réessayer';
+          sending = false;
+        });
     });
   })();
 
