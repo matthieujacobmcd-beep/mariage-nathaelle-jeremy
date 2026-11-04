@@ -423,7 +423,7 @@
 
 
   /* ---------- QUI EST CET ENFANT ---------- */
-  .enfance{ background:var(--ivory); padding-top:0; }
+  .enfance{ background:var(--ivory); }
   .enfance-file{ position:relative; display:block; border:1px dashed var(--line); padding:26px 16px; text-align:center; cursor:pointer; transition:border-color .3s ease; }
   .enfance-file:hover{ border-color:var(--wine); }
   .enfance-file input{ position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; }
@@ -483,8 +483,8 @@
     <a href="#lieu" class="nav-close-link">Le lieu</a>
     <a href="#dresscode" class="nav-close-link">Tenue</a>
     <a href="#rsvp" class="nav-close-link">RSVP</a>
-    <a href="#enfance" class="nav-close-link">Surprise</a>
     <a href="#brunch" class="nav-close-link">Brunch</a>
+    <a href="#enfance" class="nav-close-link">Surprise</a>
   </div>
   <button class="nav-toggle" id="navToggle" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -731,12 +731,38 @@
   </div>
 </section>
 
+<!-- ================= BRUNCH ================= -->
+<section id="brunch" class="brunch">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Le lendemain</span>
+      <h2>Brunch</h2>
+    </div>
+    <p class="dresscode-intro reveal">Pour celles et ceux qui souhaitent prolonger la fête sans se soucier du retour, un hébergement est proposé sur place ; le lendemain, rendez-vous à 11h00 pour le brunch, avec accès à la piscine et à la pétanque. Alors, serez-vous de la partie ?</p>
+    <div class="brunch-grid reveal">
+      <div class="brunch-box">
+        <span class="dc-eyebrow">Nuit &amp; Brunch</span>
+        <div class="brunch-price">20 &euro; <span>Par personne</span></div>
+        <p class="brunch-text">Hébergement, repas et accès piscine &amp; pétanque inclus.</p>
+        <a href="https://mariage-nathaelle-et-jeremy.sumupstore.com" target="_blank" rel="noopener" class="brunch-btn">Réserver nuit &amp; brunch</a>
+      </div>
+      <div class="brunch-box">
+        <span class="dc-eyebrow">Nuit</span>
+        <div class="brunch-price">10 &euro; <span>Par personne</span></div>
+        <p class="brunch-text">Vous restez dormir sur place mais ne participez pas au brunch.</p>
+        <a href="https://mariage-nathaelle-et-jeremy.sumupstore.com/article/nuit" target="_blank" rel="noopener" class="brunch-btn brunch-btn-outline">Réserver la nuit</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
 <!-- ================= QUI EST CET ENFANT ? ================= -->
 <section id="enfance" class="enfance">
   <div class="container">
     <div class="section-head reveal">
       <span class="eyebrow">Avant le 1er mars 2027</span>
-      <h2>Une photo de vous petit(e)</h2>
+      <h2>Une photo de vous tout petit</h2>
     </div>
     <p class="dresscode-intro reveal">Pour une petite animation le jour du mariage, nous avons besoin de vous ! Envoyez-nous une photo de vous petit(e), entre 3 et 10 ans. Rassurez-vous : elle ne sera publiée à aucun moment sur internet. Participer n'est pas obligatoire, mais cela nous ferait très plaisir. Chut, c'est une surprise…</p>
     <form class="rsvp-box reveal" id="enfanceForm" action="https://formsubmit.co/nathaelleetjeremy@gmail.com" method="POST" enctype="multipart/form-data">
@@ -766,32 +792,6 @@
     </form>
   </div>
 </section>
-
-<!-- ================= BRUNCH ================= -->
-<section id="brunch" class="brunch">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow">Le lendemain</span>
-      <h2>Brunch</h2>
-    </div>
-    <p class="dresscode-intro reveal">Pour celles et ceux qui souhaitent prolonger la fête sans se soucier du retour, un hébergement est proposé sur place ; le lendemain, rendez-vous à 11h00 pour le brunch, avec accès à la piscine et à la pétanque. Alors, serez-vous de la partie ?</p>
-    <div class="brunch-grid reveal">
-      <div class="brunch-box">
-        <span class="dc-eyebrow">Nuit &amp; Brunch</span>
-        <div class="brunch-price">20 &euro; <span>Par personne</span></div>
-        <p class="brunch-text">Hébergement, repas et accès piscine &amp; pétanque inclus.</p>
-        <a href="https://mariage-nathaelle-et-jeremy.sumupstore.com" target="_blank" rel="noopener" class="brunch-btn">Réserver nuit &amp; brunch</a>
-      </div>
-      <div class="brunch-box">
-        <span class="dc-eyebrow">Nuit</span>
-        <div class="brunch-price">10 &euro; <span>Par personne</span></div>
-        <p class="brunch-text">Vous restez dormir sur place mais ne participez pas au brunch.</p>
-        <a href="https://mariage-nathaelle-et-jeremy.sumupstore.com/article/nuit" target="_blank" rel="noopener" class="brunch-btn brunch-btn-outline">Réserver la nuit</a>
-      </div>
-    </div>
-  </div>
-</section>
-
 
 <footer>
   <div class="footer-mono">N &amp; J</div>
