@@ -381,6 +381,14 @@
     .brunch-grid{ grid-template-columns:1fr; gap:22px; }
   }
 
+  /* ---------- RSVP : nuit sur place ---------- */
+  .rsvp-choice label small{ display:block; margin-top:4px; font-size:11px; letter-spacing:0.08em; text-transform:none; opacity:.85; }
+  .nuit-note{ font-family:'Jost', sans-serif; font-size:12.5px; color:var(--ink-soft); margin-top:10px; line-height:1.5; }
+  .rsvp-pay{ display:none; margin-top:22px; padding:22px 18px; border:1px solid var(--gold); background:var(--ivory); text-align:center; font-family:'Jost', sans-serif; font-style:normal; font-size:14px; line-height:1.6; color:var(--ink); }
+  .rsvp-pay strong{ display:block; font-family:'Cormorant Garamond', serif; font-size:22px; font-weight:500; margin-bottom:6px; }
+  .rsvp-pay .brunch-btn{ margin-top:14px; text-decoration:none; }
+  @media (max-width:520px){ .rsvp-choice-3{ flex-direction:column; } }
+
   /* ---------- AVANT LE 1ER MARS ---------- */
   .todo{ background:var(--ivory-deep); padding:80px 0; }
   .todo-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:26px; max-width:960px; margin:0 auto; }
@@ -770,6 +778,19 @@
         </div>
 
         <div id="extraGuests"></div>
+
+        <div class="field">
+          <label>Restez-vous dormir sur place ?</label>
+          <div class="rsvp-choice rsvp-choice-3">
+            <input type="radio" name="Hébergement" id="h-nb" value="Nuit &amp; brunch (20 €/pers.)">
+            <label for="h-nb">Nuit &amp; brunch<small>20 € / pers.</small></label>
+            <input type="radio" name="Hébergement" id="h-n" value="Nuit seule (10 €/pers.)">
+            <label for="h-n">Nuit seule<small>10 € / pers.</small></label>
+            <input type="radio" name="Hébergement" id="h-non" value="Non">
+            <label for="h-non">Non<small>&nbsp;</small></label>
+          </div>
+          <p class="nuit-note">La nuit et le brunch sont payants : le règlement se fait en ligne, juste après l'envoi de votre réponse.</p>
+        </div>
       </div>
 
       <div class="field">
@@ -779,7 +800,7 @@
 
       <button type="submit" class="rsvp-submit">Envoyer ma réponse</button>
       <div class="rsvp-error" id="rsvpError">Oups, l'envoi n'a pas fonctionné. Vos réponses sont conservées : merci de réessayer dans quelques minutes.</div>
-      <div class="rsvp-confirm" id="rsvpConfirm">Merci ! Votre réponse a bien été prise en compte.<span id="rsvpExtra" style="display:block;font-size:17px;margin-top:12px">Vous pouvez aussi <a href="#brunch" id="rsvpToBrunch">réserver la nuit et le brunch du lendemain</a> sur place.<br>Et n'oubliez pas notre petite surprise : <a href="#enfance" id="rsvpToEnfance">envoyez-nous une photo de vous tout petit</a> !</span></div>
+      <div class="rsvp-confirm" id="rsvpConfirm">Merci ! Votre réponse a bien été prise en compte.<div class="rsvp-pay" id="rsvpPay"><strong>Dernière étape : le règlement</strong>Votre <span id="payWhat"></span> n'est réservée qu'après paiement.<br>Montant : <b id="payAmount"></b><br><a href="https://mariage-nathaelle-et-jeremy.sumupstore.com" id="payBtn" class="brunch-btn" target="_blank" rel="noopener">Régler ma réservation</a></div><span id="rsvpExtra" style="display:block;font-size:17px;margin-top:12px"><span id="rsvpBrunchLine">Vous pouvez aussi <a href="#brunch" id="rsvpToBrunch">réserver la nuit et le brunch du lendemain</a> sur place.<br></span>Et n'oubliez pas notre petite surprise : <a href="#enfance" id="rsvpToEnfance">envoyez-nous une photo de vous tout petit</a> !</span></div>
     </form>
   </div>
 </section>
@@ -900,6 +921,9 @@
   function updatePresenceVisibility() {
     const isAbsent = document.getElementById('non').checked;
     presenceFields.style.display = isAbsent ? 'none' : '';
+    document.querySelectorAll('input[name="Hébergement"]').forEach(r => r.required = !isAbsent);
+    // Champs masqués désactivés : sinon les noms d'invités obligatoires bloquent l'envoi d'une réponse « Absent(e) »
+    presenceFields.querySelectorAll('input').forEach(i => i.disabled = isAbsent);
   }
   presenceRadios.forEach(r => r.addEventListener('change', updatePresenceVisibility));
   updatePresenceVisibility();
@@ -921,10 +945,21 @@
       presence: isAbsent ? 'Absent(e)' : 'Avec joie',
       nombre: isAbsent ? 0 : invites.length,
       invites: invites,
-      message: document.getElementById('message').value.trim()
+      message: document.getElementById('message').value.trim(),
+      hebergement: isAbsent ? '' : ((form.querySelector('input[name="Hébergement"]:checked') || {}).value || '')
     };
 
     const success = () => {
+      const nuit = !isAbsent && (document.getElementById('h-nb').checked || document.getElementById('h-n').checked);
+      document.getElementById('rsvpBrunchLine').style.display = nuit ? 'none' : '';
+      if (nuit) {
+        const nb = document.getElementById('h-nb').checked;
+        const prix = nb ? 20 : 10, n = Math.max(1, invites.length);
+        document.getElementById('payWhat').textContent = nb ? 'nuit avec brunch' : 'nuit';
+        document.getElementById('payAmount').textContent = n + ' × ' + prix + ' € = ' + (n * prix) + ' €';
+        document.getElementById('payBtn').href = nb ? 'https://mariage-nathaelle-et-jeremy.sumupstore.com' : 'https://mariage-nathaelle-et-jeremy.sumupstore.com/article/nuit';
+        document.getElementById('rsvpPay').style.display = 'block';
+      }
       rsvpError.style.display = 'none';
       confirm.style.display = 'block';
       submitBtn.style.display = 'none';
