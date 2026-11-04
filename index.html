@@ -381,6 +381,20 @@
     .brunch-grid{ grid-template-columns:1fr; gap:22px; }
   }
 
+  /* ---------- AVANT LE 1ER MARS ---------- */
+  .todo{ background:var(--ivory-deep); padding:80px 0; }
+  .todo-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:26px; max-width:960px; margin:0 auto; }
+  .todo-card{ background:var(--ivory); border:1px solid var(--line); padding:34px 26px 30px; text-align:center; display:flex; flex-direction:column; align-items:center; }
+  .todo-num{ width:38px; height:38px; border-radius:50%; border:1px solid var(--gold); color:var(--gold); display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond', serif; font-size:20px; margin-bottom:16px; }
+  .todo-card h3{ font-family:'Cormorant Garamond', serif; font-weight:500; font-size:24px; line-height:1.2; margin:0 0 6px; }
+  .todo-opt{ font-family:'Jost', sans-serif; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:22px; min-height:14px; }
+  .todo-card .brunch-btn{ margin-top:auto; }
+  @media (max-width:760px){
+    .todo{ padding:60px 0; }
+    .todo-grid{ grid-template-columns:1fr; gap:16px; max-width:420px; }
+    .todo-card{ padding:26px 22px; }
+  }
+
   /* ---------- RSVP ---------- */
   .rsvp{ background:var(--ivory); }
   .rsvp-box{
@@ -509,6 +523,36 @@
   </div>
   <div class="scroll-cue"><span>Découvrir</span><span class="line"></span></div>
 </header>
+
+<!-- ================= AVANT LE 1ER MARS ================= -->
+<section id="avant" class="todo">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Avant le 1er mars 2027</span>
+      <h2>En trois étapes</h2>
+    </div>
+    <div class="todo-grid reveal">
+      <div class="todo-card">
+        <div class="todo-num">1</div>
+        <h3>Confirmez votre présence</h3>
+        <div class="todo-opt">Indispensable</div>
+        <a href="#rsvp" class="brunch-btn todo-link">Répondre</a>
+      </div>
+      <div class="todo-card">
+        <div class="todo-num">2</div>
+        <h3>Réservez la nuit &amp; le brunch</h3>
+        <div class="todo-opt">Facultatif</div>
+        <a href="#brunch" class="brunch-btn todo-link">Réserver</a>
+      </div>
+      <div class="todo-card">
+        <div class="todo-num">3</div>
+        <h3>Envoyez une photo de vous tout petit</h3>
+        <div class="todo-opt">Facultatif</div>
+        <a href="#enfance" class="brunch-btn todo-link">Envoyer</a>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ================= NOTRE HISTOIRE ================= -->
 <section id="histoire" class="story">
@@ -998,6 +1042,12 @@
         });
     });
   })();
+
+  // Boutons de l'encadré « Avant le 1er mars » : défilement doux
+  document.querySelectorAll('.todo-link').forEach(a => a.addEventListener('click', (e) => {
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
+  }));
 
   // Lien du RSVP vers la section photo
   const rsvpToEnfance = document.getElementById('rsvpToEnfance');
