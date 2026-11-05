@@ -949,14 +949,14 @@
           <input type="text" id="invite${i}" class="g-name" name="Invité ${i}" required>
         </div>
         <div class="field guest-allergy">
-          <label>Allergies ou régime alimentaire particulier ?</label>
+          <label>Une allergie alimentaire ?</label>
           <div class="rsvp-choice rsvp-choice-sm">
             <input type="radio" class="g-allergy" name="Allergies invité ${i}" id="al-non-${i}" value="Non" required>
             <label for="al-non-${i}">Non</label>
             <input type="radio" class="g-allergy" name="Allergies invité ${i}" id="al-oui-${i}" value="Oui">
             <label for="al-oui-${i}">Oui</label>
           </div>
-          <textarea class="g-detail" name="Précisions allergies invité ${i}" rows="2" placeholder="Précisez : allergie, intolérance, végétarien…"></textarea>
+          <textarea class="g-detail" name="Précisions allergies invité ${i}" rows="2" placeholder="Précisez l’allergie : arachides, fruits à coque, crustacés…"></textarea>
         </div>`;
       extraGuestsContainer.appendChild(field);
       const s = saved[i - 1];
