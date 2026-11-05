@@ -382,6 +382,12 @@
   }
 
   /* ---------- RSVP : nuit sur place ---------- */
+  .guest{ border-top:1px solid var(--line); padding-top:22px; margin-top:4px; }
+  .guest:first-child{ border-top:none; padding-top:0; margin-top:0; }
+  .guest-allergy .rsvp-choice-sm{ max-width:240px; }
+  .guest-allergy .rsvp-choice-sm label{ padding:9px 6px; }
+  .guest-allergy.need::after{ content:'Merci de répondre à cette question.'; display:block; margin-top:8px; font-family:'Cormorant Garamond', serif; font-style:italic; font-size:16px; color:#A0524D; }
+  .guest-allergy .g-detail{ display:none; margin-top:12px; border:1px solid var(--gold); padding:10px 12px; font-size:16px; background:var(--ivory); }
   .stay-error{ display:none; font-family:'Cormorant Garamond', serif; font-style:italic; font-size:17px; color:#A0524D; text-align:center; margin-top:10px; }
   .stay-choice{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
   .stay-choice input{ display:none; }
@@ -927,15 +933,47 @@
     if (isNaN(count) || count < 1) count = 1;
     if (count > 10) count = 10;
 
+    // On garde ce qui a déjà été saisi quand le nombre de personnes change
+    const saved = [...extraGuestsContainer.querySelectorAll('.guest')].map(g => ({
+      nom: g.querySelector('.g-name').value,
+      allergie: (g.querySelector('.g-allergy:checked') || {}).value || '',
+      detail: g.querySelector('.g-detail').value
+    }));
     extraGuestsContainer.innerHTML = '';
     for (let i = 1; i <= count; i++) {
       const field = document.createElement('div');
-      field.className = 'field';
+      field.className = 'guest';
       field.innerHTML = `
-        <label for="invite${i}">Nom et prénom — invité(e) ${i}</label>
-        <input type="text" id="invite${i}" name="Invité ${i}" required>
-      `;
+        <div class="field">
+          <label for="invite${i}">Nom et prénom — invité(e) ${i}</label>
+          <input type="text" id="invite${i}" class="g-name" name="Invité ${i}" required>
+        </div>
+        <div class="field guest-allergy">
+          <label>Allergies ou régime alimentaire particulier ?</label>
+          <div class="rsvp-choice rsvp-choice-sm">
+            <input type="radio" class="g-allergy" name="Allergies invité ${i}" id="al-non-${i}" value="Non" required>
+            <label for="al-non-${i}">Non</label>
+            <input type="radio" class="g-allergy" name="Allergies invité ${i}" id="al-oui-${i}" value="Oui">
+            <label for="al-oui-${i}">Oui</label>
+          </div>
+          <textarea class="g-detail" name="Précisions allergies invité ${i}" rows="2" placeholder="Précisez : allergie, intolérance, végétarien…"></textarea>
+        </div>`;
       extraGuestsContainer.appendChild(field);
+      const s = saved[i - 1];
+      const detail = field.querySelector('.g-detail');
+      const sync = () => {
+        const oui = field.querySelector('#al-oui-' + i).checked;
+        detail.style.display = oui ? 'block' : 'none';
+        detail.required = oui;
+        detail.disabled = !oui;
+      };
+      field.querySelectorAll('.g-allergy').forEach(r => r.addEventListener('change', sync));
+      if (s) {
+        field.querySelector('.g-name').value = s.nom;
+        if (s.allergie) field.querySelector('#al-' + (s.allergie === 'Oui' ? 'oui' : 'non') + '-' + i).checked = true;
+        detail.value = s.detail;
+      }
+      sync();
     }
   }
 
@@ -950,9 +988,25 @@
     presenceFields.style.display = isAbsent ? 'none' : '';
     document.querySelectorAll('input[name="Hébergement"]').forEach(r => r.required = !isAbsent);
     // Champs masqués désactivés : sinon les noms d'invités obligatoires bloquent l'envoi d'une réponse « Absent(e) »
-    presenceFields.querySelectorAll('input').forEach(i => i.disabled = isAbsent);
+    presenceFields.querySelectorAll('input, textarea').forEach(i => {
+      if (i.classList.contains('g-detail')) i.disabled = isAbsent || !i.closest('.guest').querySelector('.g-allergy[value="Oui"]').checked;
+      else i.disabled = isAbsent;
+    });
   }
   presenceRadios.forEach(r => r.addEventListener('change', updatePresenceVisibility));
+  // Allergies : boutons radio masqués, on affiche nous-mêmes le rappel s'il manque une réponse
+  form.addEventListener('invalid', (e) => {
+    const t = e.target;
+    if (!t.classList || !t.classList.contains('g-allergy')) return;
+    e.preventDefault();
+    const f = t.closest('.guest-allergy');
+    f.classList.add('need');
+    f.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, true);
+  form.addEventListener('change', (e) => {
+    if (e.target.classList && e.target.classList.contains('g-allergy')) e.target.closest('.guest-allergy').classList.remove('need');
+  });
+
   // Choix de la nuit : les boutons radio étant masqués, on affiche nous-mêmes le rappel s'il manque une réponse
   const stayError = document.getElementById('stayError');
   document.querySelectorAll('input[name="Hébergement"]').forEach(r => {
@@ -973,8 +1027,14 @@
 
     const isAbsent = document.getElementById('non').checked;
     const invites = [];
+    const allergies = [];
     if (!isAbsent) {
-      form.querySelectorAll('#extraGuests input').forEach(i => { if (i.value.trim()) invites.push(i.value.trim()); });
+      form.querySelectorAll('#extraGuests .guest').forEach(g => {
+        const nom = g.querySelector('.g-name').value.trim();
+        if (!nom) return;
+        invites.push(nom);
+        if (g.querySelector('.g-allergy[value="Oui"]').checked) allergies.push(nom + ' : ' + g.querySelector('.g-detail').value.trim());
+      });
     }
     const payload = {
       type: 'rsvp',
@@ -983,6 +1043,7 @@
       nombre: isAbsent ? 0 : invites.length,
       invites: invites,
       message: document.getElementById('message').value.trim(),
+      allergies: allergies.join(' ; '),
       hebergement: isAbsent ? '' : ((form.querySelector('input[name="Hébergement"]:checked') || {}).value || '')
     };
 
